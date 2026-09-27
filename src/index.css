@@ -1,0 +1,261 @@
+/* Tema de DriveSense. Valores y uso de cada token: docs/diseno.md */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/space-grotesk";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* 1. Tokens de DriveSense: fuente única de cada valor (docs/diseno.md, 1.1) */
+  --ds-fondo: #efebe1;
+  --ds-superficie: #ffffff;
+  --ds-superficie-alt: #f9f7f2;
+  --ds-borde: #e2dccf;
+  --ds-borde-fuerte: #dfd8c7;
+  --ds-texto-principal: #1e252d;
+  --ds-texto-secundario: #5f6b76;
+  --ds-texto-terciario: #7b8893;
+  --ds-sobre-primario: #ffffff;
+  --ds-primario: #10b981;
+  --ds-primario-oscuro: #059669;
+  --ds-secundario: #0ea5e9;
+  --ds-confort: #8b5cf6;
+  --ds-advertencia: #f59e0b;
+  --ds-peligro: #ef4444;
+  --ds-boton-primario: #047857;
+  --ds-boton-primario-presionado: #065f46;
+  --ds-enlace: #047857;
+  --ds-texto-exito: #047857;
+  --ds-fondo-boton-secundario: #e8e2d4;
+  --ds-carril: #e8e2d4;
+  --ds-borde-peligro-suave: #f8c9c9;
+  --ds-texto-peligro: #b91c1c;
+
+  --ds-tinte-primario: #e7f8f2;
+  --ds-tinte-confort: #f3effe;
+  --ds-tinte-peligro: #fdecec;
+  --ds-tinte-advertencia: #fef5e7;
+  --ds-tinte-nav-activo: #dbf4ec;
+
+  /* Encabezado oscuro: igual en los dos modos */
+  --ds-encabezado-fondo: #1e252d;
+  --ds-encabezado-superficie: #12171f;
+  --ds-encabezado-borde: #2a3440;
+  --ds-encabezado-acento: #34d399;
+  --ds-encabezado-texto: #f3f4f6;
+  --ds-encabezado-texto-secundario: #9ca3af;
+
+  --ds-gradiente-score: linear-gradient(90deg, #10b981, #06b6d4);
+  --ds-gradiente-relleno-grafica: linear-gradient(
+    180deg,
+    rgb(16 185 129 / 0.15),
+    rgb(16 185 129 / 0)
+  );
+
+  /* 2. Variables de Shadcn → tokens (docs/diseno.md, 2) */
+  --background: var(--ds-fondo);
+  --foreground: var(--ds-texto-principal);
+  --card: var(--ds-superficie);
+  --card-foreground: var(--ds-texto-principal);
+  --popover: var(--ds-superficie);
+  --popover-foreground: var(--ds-texto-principal);
+  --primary: var(--ds-boton-primario);
+  --primary-foreground: var(--ds-sobre-primario);
+  --secondary: var(--ds-fondo-boton-secundario);
+  --secondary-foreground: var(--ds-texto-principal);
+  --muted: var(--ds-superficie-alt);
+  --muted-foreground: var(--ds-texto-secundario);
+  --accent: var(--ds-tinte-primario);
+  --accent-foreground: var(--ds-enlace);
+  --destructive: var(--ds-texto-peligro);
+  --border: var(--ds-borde);
+  --input: var(--ds-borde);
+  --ring: var(--ds-boton-primario);
+  --chart-1: var(--ds-primario);
+  --chart-2: var(--ds-secundario);
+  --chart-3: var(--ds-confort);
+  --chart-4: var(--ds-advertencia);
+  --chart-5: var(--ds-peligro);
+  --radius: 1rem;
+  --sidebar: var(--ds-superficie);
+  --sidebar-foreground: var(--ds-texto-principal);
+  --sidebar-primary: var(--ds-boton-primario);
+  --sidebar-primary-foreground: var(--ds-sobre-primario);
+  --sidebar-accent: var(--ds-tinte-nav-activo);
+  --sidebar-accent-foreground: var(--ds-enlace);
+  --sidebar-border: var(--ds-borde);
+  --sidebar-ring: var(--ds-boton-primario);
+}
+
+.dark {
+  /* Modo oscuro (futuro, docs/diseno.md 1.2): solo se redefinen los --ds-*.
+     Las variables de Shadcn y las clases propias los siguen solas. */
+}
+
+@theme inline {
+  /* Colores de Shadcn */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Tokens propios de DriveSense (docs/diseno.md, 3) */
+  --color-borde-fuerte: var(--ds-borde-fuerte);
+  --color-texto-terciario: var(--ds-texto-terciario);
+  --color-primario: var(--ds-primario);
+  --color-primario-oscuro: var(--ds-primario-oscuro);
+  --color-secundario: var(--ds-secundario);
+  --color-confort: var(--ds-confort);
+  --color-advertencia: var(--ds-advertencia);
+  --color-peligro: var(--ds-peligro);
+  --color-primario-presionado: var(--ds-boton-primario-presionado);
+  --color-enlace: var(--ds-enlace);
+  --color-texto-exito: var(--ds-texto-exito);
+  --color-carril: var(--ds-carril);
+  --color-borde-peligro-suave: var(--ds-borde-peligro-suave);
+  --color-tinte-primario: var(--ds-tinte-primario);
+  --color-tinte-confort: var(--ds-tinte-confort);
+  --color-tinte-peligro: var(--ds-tinte-peligro);
+  --color-tinte-advertencia: var(--ds-tinte-advertencia);
+  --color-tinte-nav-activo: var(--ds-tinte-nav-activo);
+  --color-encabezado-fondo: var(--ds-encabezado-fondo);
+  --color-encabezado-superficie: var(--ds-encabezado-superficie);
+  --color-encabezado-borde: var(--ds-encabezado-borde);
+  --color-encabezado-acento: var(--ds-encabezado-acento);
+  --color-encabezado-texto: var(--ds-encabezado-texto);
+  --color-encabezado-texto-secundario: var(--ds-encabezado-texto-secundario);
+
+  /* Fuentes (docs/diseno.md, 4.1) */
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-numeros: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Radios exactos (docs/diseno.md, 5.2) */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: var(--radius);
+  --radius-xl: 1.5rem;
+  --radius-2xl: 1.75rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 2.5rem;
+  --radius-logo: 0.875rem;
+}
+
+@theme {
+  /* Escala tipográfica (docs/diseno.md, 4.2) */
+  --text-telemetria-xl: 4rem;
+  --text-telemetria-xl--line-height: 1;
+  --text-telemetria-xl--font-weight: 700;
+  --text-telemetria: 3.5rem;
+  --text-telemetria--line-height: 1;
+  --text-telemetria--font-weight: 700;
+  --text-puntaje: 1.75rem;
+  --text-puntaje--line-height: 1.1;
+  --text-puntaje--font-weight: 700;
+  --text-numero-metrica: 1.125rem;
+  --text-numero-metrica--line-height: 1.3;
+  --text-numero-metrica--font-weight: 500;
+  --text-titulo-landing: 3.5rem;
+  --text-titulo-landing--line-height: 1.1;
+  --text-titulo-landing--font-weight: 700;
+  --text-titulo-landing-movil: 2.125rem;
+  --text-titulo-landing-movil--line-height: 1.15;
+  --text-titulo-landing-movil--font-weight: 700;
+  --text-subtitulo-landing: 1.125rem;
+  --text-subtitulo-landing--line-height: 1.6;
+  --text-subtitulo-landing--font-weight: 400;
+  --text-titulo-hero: 2rem;
+  --text-titulo-hero--line-height: 1.15;
+  --text-titulo-hero--font-weight: 700;
+  --text-titulo: 1.5rem;
+  --text-titulo--line-height: 1.2;
+  --text-titulo--font-weight: 700;
+  --text-titulo-tarjeta: 1.375rem;
+  --text-titulo-tarjeta--line-height: 1.25;
+  --text-titulo-tarjeta--font-weight: 700;
+  --text-marca: 1.25rem;
+  --text-marca--line-height: 1.2;
+  --text-marca--font-weight: 700;
+  --text-subtitulo-grande: 1.125rem;
+  --text-subtitulo-grande--line-height: 1.3;
+  --text-subtitulo-grande--font-weight: 600;
+  --text-subtitulo: 1rem;
+  --text-subtitulo--line-height: 1.3;
+  --text-subtitulo--font-weight: 600;
+  --text-boton: 1rem;
+  --text-boton--line-height: 1.25;
+  --text-boton--font-weight: 600;
+  --text-cuerpo: 0.875rem;
+  --text-cuerpo--line-height: 1.5;
+  --text-cuerpo--font-weight: 400;
+  --text-cuerpo-pequeno: 0.8125rem;
+  --text-cuerpo-pequeno--line-height: 1.5;
+  --text-cuerpo-pequeno--font-weight: 400;
+  --text-etiqueta-campo: 0.8125rem;
+  --text-etiqueta-campo--line-height: 1.3;
+  --text-etiqueta-campo--font-weight: 600;
+  --text-ayuda: 0.75rem;
+  --text-ayuda--line-height: 1.4;
+  --text-ayuda--font-weight: 400;
+  --text-etiqueta-grande: 0.75rem;
+  --text-etiqueta-grande--line-height: 1.3;
+  --text-etiqueta-grande--font-weight: 500;
+  --text-etiqueta-grande--letter-spacing: 0.05em;
+  --text-etiqueta: 0.6875rem;
+  --text-etiqueta--line-height: 1.3;
+  --text-etiqueta--font-weight: 500;
+  --text-etiqueta--letter-spacing: 0.05em;
+
+  /* Sombras (docs/diseno.md, 5.3) */
+  --shadow-tarjeta: 0 4px 20px rgb(0 0 0 / 0.06);
+  --shadow-tarjeta-elevada: 0 24px 60px rgb(18 23 31 / 0.22);
+  --shadow-boton-primario: 0 6px 20px rgb(16 185 129 / 0.2);
+  --shadow-resplandor: 0 0 15px 2px rgb(52 211 153 / 0.4);
+  --drop-shadow-resplandor: 0 0 8px rgb(52 211 153 / 0.6);
+
+  /* Anchos (docs/diseno.md, 8.5) */
+  --container-contenido: 90rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    /* Desplazamiento suave al seguir los enlaces a secciones (#como-funciona) */
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
