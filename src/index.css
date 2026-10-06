@@ -38,6 +38,12 @@
   --ds-tinte-peligro: #fdecec;
   --ds-tinte-advertencia: #fef5e7;
   --ds-tinte-nav-activo: #dbf4ec;
+  --ds-tinte-secundario: #e2f4fc;
+  /* Texto de cada tipo de evento (sobre su tinte y sobre blanco) */
+  --ds-texto-evento-frenada: #b91c1c;
+  --ds-texto-evento-aceleracion: #6d28d9;
+  --ds-texto-evento-giro: #b45309;
+  --ds-texto-evento-velocidad: #0369a1;
 
   /* Encabezado oscuro: igual en los dos modos */
   --ds-encabezado-fondo: #1e252d;
@@ -147,6 +153,11 @@
   --color-tinte-peligro: var(--ds-tinte-peligro);
   --color-tinte-advertencia: var(--ds-tinte-advertencia);
   --color-tinte-nav-activo: var(--ds-tinte-nav-activo);
+  --color-tinte-secundario: var(--ds-tinte-secundario);
+  --color-texto-evento-frenada: var(--ds-texto-evento-frenada);
+  --color-texto-evento-aceleracion: var(--ds-texto-evento-aceleracion);
+  --color-texto-evento-giro: var(--ds-texto-evento-giro);
+  --color-texto-evento-velocidad: var(--ds-texto-evento-velocidad);
   --color-encabezado-fondo: var(--ds-encabezado-fondo);
   --color-encabezado-superficie: var(--ds-encabezado-superficie);
   --color-encabezado-borde: var(--ds-encabezado-borde);

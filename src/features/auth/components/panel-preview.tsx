@@ -1,3 +1,5 @@
+import { iniciales } from "@/lib/format"
+import { CLASE_CALIFICACION, calificar } from "@/lib/score"
 import { cn } from "@/lib/utils"
 
 // Datos ilustrativos fijos: no vienen de la API
@@ -6,21 +8,6 @@ const CONDUCTORES = [
   { nombre: "Jorge Mamani", resumen: "12 viajes · 4 aceleraciones severas", puntaje: 81 },
   { nombre: "Lucía Rojas", resumen: "9 viajes · 7 excesos de velocidad", puntaje: 63 },
 ]
-
-/** Cápsula del puntaje según su rango (docs/diseno.md, 6.5). */
-function clasePuntaje(puntaje: number) {
-  if (puntaje >= 90) return "bg-tinte-primario text-texto-exito"
-  if (puntaje >= 70) return "bg-tinte-advertencia text-foreground"
-  return "bg-tinte-peligro text-destructive"
-}
-
-function iniciales(nombre: string) {
-  return nombre
-    .split(" ")
-    .map((parte) => parte[0])
-    .join("")
-    .slice(0, 2)
-}
 
 export function VistaPreviaPanel() {
   return (
@@ -41,7 +28,7 @@ export function VistaPreviaPanel() {
             <span
               className={cn(
                 "rounded-full px-3 py-1 font-numeros text-numero-metrica font-bold tabular-nums",
-                clasePuntaje(c.puntaje),
+                CLASE_CALIFICACION[calificar(c.puntaje)],
               )}
             >
               {c.puntaje}

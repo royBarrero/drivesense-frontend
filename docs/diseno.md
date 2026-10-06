@@ -50,6 +50,16 @@ Cada token tiene una variable CSS propia de DriveSense (`--ds-*`). La columna **
 | `tintePeligro` | #FDECEC | `--ds-tinte-peligro` | — | `bg-tinte-peligro` | Aviso de error, riesgo alto |
 | `tinteAdvertencia` | #FEF5E7 | `--ds-tinte-advertencia` | — | `bg-tinte-advertencia` | Riesgo medio |
 | `tinteNavActivo` | #DBF4EC | `--ds-tinte-nav-activo` | `--sidebar-accent` | `bg-tinte-nav-activo` | Ítem activo del menú lateral |
+| `tinteSecundario` | #E2F4FC | `--ds-tinte-secundario` | — | `bg-tinte-secundario` | Calificación "Muy bueno", excesos de velocidad (igual que la app) |
+
+**Eventos de riesgo** (mismos valores que la guía móvil; el tinte de cada tipo es el de la tabla anterior: frenada `tintePeligro`, aceleración `tinteConfort`, giro `tinteAdvertencia`, exceso `tinteSecundario`). El texto va sobre el tinte y sobre blanco; también es el color de los marcadores del mapa y de las barras del desglose:
+
+| Token | Hex | Variable | Clase |
+|---|---|---|---|
+| `textoEventoFrenada` | #B91C1C | `--ds-texto-evento-frenada` | `text-texto-evento-frenada`, `bg-texto-evento-frenada` |
+| `textoEventoAceleracion` | #6D28D9 | `--ds-texto-evento-aceleracion` | `text-texto-evento-aceleracion`, `bg-…` |
+| `textoEventoGiro` | #B45309 | `--ds-texto-evento-giro` | `text-texto-evento-giro`, `bg-…` |
+| `textoEventoVelocidad` | #0369A1 | `--ds-texto-evento-velocidad` | `text-texto-evento-velocidad`, `bg-…` |
 
 **Encabezado oscuro** (landing y bloques oscuros; es oscuro **también en modo claro**, e igual en los dos modos):
 
@@ -276,13 +286,16 @@ Los componentes de Shadcn se editan **solo para aplicar este tema**. Las página
 - Columnas numéricas (DriveScore, eventos, km): `font-numeros tabular-nums`, alineadas a la derecha.
 
 ### 6.5 Indicadores
-- **Nivel de riesgo o puntaje** **(propuesta)**: distintivo `rounded-full px-2.5 py-0.5 text-etiqueta`:
+- **DriveScore** (distintivo `rounded-full`, número en `font-numeros` 700): el color sale de la **calificación**, con los mismos rangos que la app y el backend:
 
-| Valor | Fondo | Texto |
+| Calificación | Fondo | Texto |
 |---|---|---|
-| ≥ 90 | `bg-tinte-primario` | `text-texto-exito` |
-| 70–89 | `bg-tinte-advertencia` | `text-foreground` |
-| < 70 | `bg-tinte-peligro` | `text-destructive` |
+| Excelente (90–100) | `bg-tinte-primario` | `text-texto-exito` |
+| Muy bueno (75–89) | `bg-tinte-secundario` | `text-texto-evento-velocidad` |
+| Regular (60–74) | `bg-tinte-advertencia` | `text-texto-evento-giro` |
+| Riesgoso (< 60) | `bg-tinte-peligro` | `text-destructive` |
+
+- **Cantidad de eventos de un tipo** (tablas): distintivo `rounded-full` de 48 px de ancho con el tinte y el texto del tipo; en 0, solo el número en `text-texto-terciario`.
 
 - **Barra de progreso:** 8 px (`h-2`), `rounded-full`, carril `bg-carril`. La barra usa `bg-primario` (≥ 90 %), `bg-advertencia` (70–89 %) o `bg-peligro` (< 70 %); son los mismos umbrales de la app.
 - **Anillo de DriveScore:** SVG con trazo de 12 px, `stroke-linecap: round`, carril `stroke-carril` y degradado `--ds-gradiente-score`.
@@ -345,7 +358,26 @@ Mismo patrón que la app (guía móvil, sección 4.2): encabezado oscuro con `ro
 | Margen lateral en escritorio | 64 px (`px-16`) |
 | Portátil de 1280 px | Mismo margen: el contenido queda en 1152 px y todo debe verse completo, sin scroll horizontal |
 | Menos de 1024 px | Margen de 24 px (`px-6`) **(propuesta)**. El panel está pensado para escritorio |
-| Menú lateral del panel | 256 px (`w-64`), fondo `bg-sidebar`, borde derecho `border-sidebar-border` **(propuesta)** |
+| Menú lateral del panel | 256 px (`w-64`), oscuro (sección 8.6) |
+| Contenido del panel | `px-6 py-8` bajo 1024 px, `lg:px-8 lg:py-10` y `2xl:px-12`; ancho máximo `max-w-contenido`. A 1280 px quedan 960 px: la tabla de viajes de pruebas entra completa porque sus celdas se acomodan en dos líneas (número y unidad con NBSP, `src/lib/format.ts`) |
+
+### 8.6 Menú lateral del panel (implementado)
+Reemplaza la propuesta clara (`bg-sidebar`): el menú es **oscuro**, como los bloques oscuros de la landing.
+- Fondo `bg-encabezado-fondo`, a todo el alto (`sticky top-0 h-svh`). Arriba el `Logo` (variante oscura).
+- Títulos de grupo ("GENERAL", "HERRAMIENTAS") en `text-etiqueta uppercase text-encabezado-texto-secundario`.
+- Ítem: alto 48, `rounded-lg`, ícono de 20 y texto `text-subtitulo`. Inactivo `text-encabezado-texto-secundario`, hover `bg-encabezado-borde/40`. Activo `bg-encabezado-borde` con texto `text-encabezado-texto` e ícono `text-encabezado-acento`.
+- Deshabilitado ("Pronto"): `text-encabezado-texto-secundario/60` y cápsula "Pronto" `bg-encabezado-superficie text-encabezado-texto-secundario text-ayuda`.
+- Cápsula "Temporal": `bg-advertencia/15 text-advertencia text-ayuda font-semibold`.
+- Abajo, la tarjeta del usuario: `bg-encabezado-superficie rounded-xl p-3`, avatar de 40 (`bg-encabezado-borde text-encabezado-acento`), nombre `text-subtitulo text-encabezado-texto`, rol `text-cuerpo-pequeno text-encabezado-texto-secundario` y botón para salir (`ghost`).
+- Bajo 1024 px el menú se oculta y una barra superior oscura de 64 px con el logo y un botón de menú lo abre en un `Sheet` desde la izquierda.
+
+### 8.7 Modo pruebas (temporal, se retira con `features/pruebas`)
+- **Banner de Inicio:** `bg-encabezado-fondo rounded-3xl`, caja de 56 `bg-advertencia/15` con el matraz en `text-advertencia`, antetítulo "MODO PRUEBAS ACTIVO" en `text-etiqueta-grande uppercase text-advertencia`, título `text-titulo-tarjeta text-encabezado-texto`, texto `text-cuerpo text-encabezado-texto-secundario` y botón `sobreOscuro`.
+- **Aviso temporal** (página de pruebas): `bg-tinte-advertencia border border-advertencia/30 rounded-lg`, candado de 20 y texto `text-cuerpo font-medium text-texto-evento-giro`.
+- **Antetítulo de página** ("PRUEBAS"): `text-etiqueta-grande uppercase text-texto-evento-giro`.
+- **Pestañas Viajes / Testers:** cápsula `bg-carril rounded-full p-1`; la activa `bg-card shadow-tarjeta`.
+- **Mapa del viaje:** Leaflet con mosaicos de OpenStreetMap y atribución visible. Ruta de 5 px en `primario`; inicio, círculo blanco con borde de 4 en `primario`; fin, círculo `encabezado-fondo`; eventos, círculos de 14 en el texto de su tipo con borde blanco de 2.
+- **Botones Correcto / Falso:** `outline` de 36 px; marcado, Correcto en `default` y Falso en `bg-destructive text-white`.
 
 ---
 
