@@ -1,0 +1,15 @@
+# Sirve el build del panel dentro de la red de Docker (el HTTPS lo pone el Caddy del backend).
+:80 {
+	root * /srv
+	encode zstd gzip
+
+	# Los archivos de assets/ llevan hash en el nombre: se pueden cachear para siempre
+	header /assets/* Cache-Control "public, max-age=31536000, immutable"
+	# El resto (index.html y las rutas de la SPA) se revalida siempre, para tomar cada deploy
+	@sinHash not path /assets/*
+	header @sinHash Cache-Control "no-cache"
+
+	# Fallback de SPA: las rutas /panel/... las resuelve React Router
+	try_files {path} /index.html
+	file_server
+}
