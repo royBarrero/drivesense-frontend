@@ -1,7 +1,7 @@
 import { iniciales } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
-// Cada tester con un tinte fijo según su id, para reconocerlo entre filas
+// Cada usuario con un tinte fijo según su id, para reconocerlo entre filas
 const COLORES = [
   "bg-tinte-primario text-texto-exito",
   "bg-tinte-confort text-texto-evento-aceleracion",
@@ -10,7 +10,7 @@ const COLORES = [
   "bg-tinte-advertencia text-texto-evento-giro",
 ]
 
-export function AvatarTester({ id, nombre, grande = false }: { id: number; nombre: string; grande?: boolean }) {
+export function AvatarUsuario({ id, nombre, grande = false }: { id: number; nombre: string; grande?: boolean }) {
   return (
     <span
       className={cn(

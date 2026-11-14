@@ -63,3 +63,13 @@ export async function peticion<T>(ruta: string, { metodo = "GET", cuerpo }: Opci
   const errores = (datos as { errores?: ErrorCampo[] }).errores
   throw new ErrorApi(detail, respuesta.status, Array.isArray(errores) ? errores : [])
 }
+
+/** `?a=1&b=2` sin los valores vacíos. */
+export function consulta(parametros: Record<string, string | number | undefined>) {
+  const busqueda = new URLSearchParams()
+  for (const [clave, valor] of Object.entries(parametros)) {
+    if (valor !== undefined && valor !== "") busqueda.set(clave, String(valor))
+  }
+  const texto = busqueda.toString()
+  return texto ? `?${texto}` : ""
+}

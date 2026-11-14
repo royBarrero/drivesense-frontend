@@ -69,7 +69,9 @@ function MenuLateral({ alNavegar }: { alNavegar?: () => void }) {
         <ItemMenu a="/panel" icono={House} alNavegar={alNavegar} exacto>
           Inicio
         </ItemMenu>
-        <ItemProximo icono={Users}>Conductores</ItemProximo>
+        <ItemMenu a="/panel/conductores" icono={Users} alNavegar={alNavegar}>
+          Conductores
+        </ItemMenu>
         <ItemProximo icono={BarChart3}>Reportes</ItemProximo>
       </GrupoMenu>
 

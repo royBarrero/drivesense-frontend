@@ -10,14 +10,14 @@ import { formatearDecimal, formatearEntero } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 import { descargarCsv, listarRecorridos, listarTesters, obtenerResumen } from "../api"
-import { TarjetaKpi } from "../components/kpi-card"
+import { TarjetaKpi } from "@/components/kpi-card"
 import { SelectorPeriodo } from "../components/period-select"
 import { TablaTesters } from "../components/testers-table"
 import { TablaViajes } from "../components/trips-table"
 import { VIAJES_POR_PAGINA } from "../constants"
 import { desdePeriodo, esPeriodo, PERIODOS, type Periodo } from "../period"
 import type { FiltroEventos, FiltrosRecorridos } from "../types"
-import { useConsulta } from "../use-query"
+import { useConsulta } from "@/hooks/use-consulta"
 
 const TODOS = "todos"
 

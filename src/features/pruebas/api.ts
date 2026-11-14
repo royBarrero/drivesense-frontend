@@ -1,4 +1,4 @@
-import { ErrorApi, peticion, URL_API } from "@/lib/api-client"
+import { consulta, ErrorApi, peticion, URL_API } from "@/lib/api-client"
 import { leerToken } from "@/lib/session"
 
 import type {
@@ -9,16 +9,6 @@ import type {
   ResumenPruebas,
   TesterPruebas,
 } from "./types"
-
-/** `?a=1&b=2` sin los valores vacíos. */
-function consulta(parametros: Record<string, string | number | undefined>) {
-  const busqueda = new URLSearchParams()
-  for (const [clave, valor] of Object.entries(parametros)) {
-    if (valor !== undefined && valor !== "") busqueda.set(clave, String(valor))
-  }
-  const texto = busqueda.toString()
-  return texto ? `?${texto}` : ""
-}
 
 /** 204 si la sesión es la cuenta de pruebas; 403 (otra cuenta) o 404 (modo apagado) si no. */
 export async function tieneAcceso(): Promise<boolean> {

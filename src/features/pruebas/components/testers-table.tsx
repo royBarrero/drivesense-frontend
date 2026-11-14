@@ -2,7 +2,7 @@ import { formatearDecimal, formatearEntero, formatearFechaHora, formatearKm } fr
 
 import type { TesterPruebas } from "../types"
 import { DistintivoPuntaje } from "./badges"
-import { AvatarTester } from "./tester-avatar"
+import { AvatarUsuario } from "@/components/user-avatar"
 
 const CLASE_CABECERA = "px-4 py-3 text-left text-etiqueta font-medium text-muted-foreground uppercase"
 
@@ -31,7 +31,7 @@ export function TablaTesters({ testers, alElegir }: { testers: TesterPruebas[]; 
             >
               <td className="px-4 py-3">
                 <span className="flex items-center gap-3">
-                  <AvatarTester id={t.id} nombre={t.nombre} />
+                  <AvatarUsuario id={t.id} nombre={t.nombre} />
                   <span className="min-w-0">
                     <button
                       type="button"

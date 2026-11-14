@@ -18,10 +18,17 @@ Panel web B2B para **administradores de empresa** (flotas y aseguradoras). Los c
 - Sesión: token en `localStorage` (`src/lib/session.ts`). `SesionProvider` (`src/features/auth/session-provider.tsx`) lo valida con `GET /auth/yo`: 401 → borra el token; sin conexión → mensaje con "Reintentar" sin borrar el token. Acceso con `useSesion()` (`session-context.ts`).
 - Cliente: `peticion()` y `ErrorApi` en `src/lib/api-client.ts` (URL de `VITE_API_URL`, ver `.env.example`).
 - Formularios: react-hook-form en modo `onTouched` (errores al salir del campo) con esquemas zod en `features/auth/validation.ts`, que replican las reglas del backend. El formulario de registro tiene la misma forma que el cuerpo de la API, así que los `campo` de un 422 se asignan con `setError` tal cual.
-- Componentes propios compartidos en `src/components/` (`Logo`, `AvisoError`, `CampoContrasenia`); los de Shadcn en `src/components/ui/` (`select.tsx` con el tema aplicado). Formatos de números y fechas en `src/lib/format.ts` (es-BO, NBSP entre número y unidad) y calificación del DriveScore con sus colores en `src/lib/score.ts`.
+- Componentes propios compartidos en `src/components/` (`Logo`, `AvisoError`, `CampoContrasenia`, `TarjetaKpi`, `DistintivoPuntaje` en `score-badge.tsx`, `AvatarUsuario`); hook `useConsulta` en `src/hooks/use-consulta.ts`; `consulta()` (query string) en `lib/api-client.ts`; los de Shadcn en `src/components/ui/` (`select.tsx` con el tema aplicado). Formatos de números y fechas en `src/lib/format.ts` (es-BO, NBSP entre número y unidad) y calificación del DriveScore con sus colores en `src/lib/score.ts`.
 - Prueba en el navegador: backend en `127.0.0.1:8000` + `npx vite --port 5173 --strictPort`.
 - Producción: `Dockerfile` multi-stage (build con Node 24, `VITE_API_URL` como build arg obligatorio; se sirve con Caddy según `deploy/Caddyfile`, con fallback de SPA y caché larga para `assets/`). La imagen la construye el `deploy/docker-compose.yml` del backend; ver su `docs/despliegue.md`.
 - `npm run lint` también revisa `.kilo/worktrees/` si existe (copias de otra herramienta, con errores ajenos): para revisar solo el panel, `npx eslint . --ignore-pattern ".kilo/**"`.
+
+## Conductores (HU-24)
+
+`src/features/conductores/`, rutas `/panel/conductores` (`pages/drivers-page.tsx`) y `/panel/conductores/:id` (marcador del perfil, HU-25). Usa los endpoints `/flotas/*` del backend (ver su CLAUDE.md).
+- Página: tarjetas de resumen (conductores, DriveScore promedio con su calificación, eventos de riesgo), búsqueda (con espera de 300 ms), periodo (7 días, 30 días, Todo; por defecto 30 días), orden (DriveScore, Viajes, Último viaje) con botón de sentido y paginación de 20. Los filtros viven en la URL (`periodo`, `q`, `orden`, `dir`, `pagina`). Sin viajes → "Sin viajes todavía".
+- Alta (`register-dialog.tsx`, componente `dialog` de Shadcn escrito a mano con el tema): nombre, correo y teléfono; correo repetido (409) y 422 van debajo del campo. Al crear, `CredencialTemporal` muestra la contraseña temporal **una sola vez** con botón de copiar; con ella a la vista, Escape y clic afuera no cierran el diálogo. `new-password-dialog.tsx` confirma y genera otra (botón de llave en cada fila).
+- Los periodos los calcula el backend con la zona horaria de la empresa; el panel solo manda `7d`, `30d` o `todo`.
 
 ## Modo pruebas (temporal)
 
@@ -30,7 +37,7 @@ Herramienta para ver los viajes reales de los testers antes del despliegue. **No
 - Inicio: `SeccionPruebasInicio` (KPIs, banner y últimos 4 viajes) con un selector de periodo (Hoy, 7 días, 30 días, Todo = medianoche local de hace 0/6/29 días, `period.ts`).
 - `/panel/pruebas` (`pages/trips-page.tsx`): pestañas Viajes / Testers, KPIs, filtros en la URL (`vista`, `periodo`, `tester`, `eventos`, `pagina`), tabla paginada (20 por página) y "Exportar CSV" (`descargarCsv`, fetch con Bearer porque `peticion` espera JSON).
 - `/panel/pruebas/viajes/:id` (`pages/trip-detail-page.tsx`, carga diferida con `lazy` porque trae Leaflet): métricas, mapa (`MapaViaje`; los colores van como clases en los trazos SVG), eventos con Correcto / Falso (actualización optimista, se revierte si falla; pulsar la marca puesta la quita), desglose y eventos por tipo. "Volver a viajes" conserva los filtros (`state.volver`).
-- Datos con `useConsulta(clave, fn)` (`use-query.ts`): recarga al cambiar la clave, conserva los datos anteriores mientras carga y un 401 cierra la sesión.
+- Datos con `useConsulta(clave, fn)` (`@/hooks/use-consulta`): recarga al cambiar la clave, conserva los datos anteriores mientras carga y un 401 cierra la sesión.
 - `LIMITE_VELOCIDAD_KMH` (`constants.ts`) copia el límite fijo de la app: si cambia allá, cambiarlo aquí.
 - **Para retirarlo:** borrar `src/features/pruebas/`; en `router.tsx` quitar `AccesoPruebasProvider` y las rutas `pruebas*`; en `panel-layout.tsx` el grupo "Herramientas" y el rol "Superadmin"; en `home-page.tsx` el selector y `SeccionPruebasInicio`; la sección 8.7 de `docs/diseno.md`; desinstalar `leaflet`, `react-leaflet` y `@types/leaflet` si nadie más los usa; y esta sección.
 

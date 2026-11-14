@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate } from "react-router"
 
 import { LandingPagina } from "@/features/auth/pages/landing-page"
 import { RegistroEmpresaPagina } from "@/features/auth/pages/register-page"
+import { ConductoresPagina } from "@/features/conductores/pages/drivers-page"
+import { PerfilConductorPagina } from "@/features/conductores/pages/driver-profile-page"
 import { AccesoPruebasProvider, RutaPruebas } from "@/features/pruebas/access-provider"
 import { ViajesPruebasPagina } from "@/features/pruebas/pages/trips-page"
 
@@ -38,6 +40,8 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <InicioPagina /> },
+      { path: "conductores", element: <ConductoresPagina /> },
+      { path: "conductores/:id", element: <PerfilConductorPagina /> },
       // Temporal: modo pruebas (se retira con features/pruebas)
       {
         path: "pruebas",

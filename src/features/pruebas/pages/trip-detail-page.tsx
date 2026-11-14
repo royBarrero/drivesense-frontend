@@ -9,13 +9,13 @@ import { cn } from "@/lib/utils"
 import { obtenerDetalle } from "../api"
 import { DistintivoPuntaje } from "../components/badges"
 import { ListaEventos } from "../components/event-list"
-import { TarjetaKpi } from "../components/kpi-card"
-import { AvatarTester } from "../components/tester-avatar"
+import { TarjetaKpi } from "@/components/kpi-card"
+import { AvatarUsuario } from "@/components/user-avatar"
 import { MapaViaje } from "../components/trip-map"
 import { ESTILO_EVENTO, LIMITE_VELOCIDAD_KMH, TIPOS_EVENTO } from "../constants"
 import { textoDispositivoCompleto } from "../format"
 import type { DetallePruebas } from "../types"
-import { useConsulta } from "../use-query"
+import { useConsulta } from "@/hooks/use-consulta"
 
 /** Pruebas · Detalle del viaje (temporal). */
 export function DetalleViajePruebasPagina() {
@@ -55,7 +55,7 @@ function Detalle({ viaje }: { viaje: DetallePruebas }) {
   return (
     <>
       <section className="mt-6 flex flex-wrap items-center gap-5 rounded-xl border border-border bg-card p-5 shadow-tarjeta">
-        <AvatarTester id={viaje.conductor.id} nombre={viaje.conductor.nombre} grande />
+        <AvatarUsuario id={viaje.conductor.id} nombre={viaje.conductor.nombre} grande />
         <div className="min-w-0 flex-1">
           <h1 className="text-titulo">{viaje.conductor.nombre}</h1>
           <p className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-cuerpo text-muted-foreground">

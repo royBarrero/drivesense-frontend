@@ -9,10 +9,10 @@ import { NOMBRE_CALIFICACION } from "@/lib/score"
 
 import { listarRecorridos, obtenerResumen } from "../api"
 import { desdePeriodo, FRENTE_A, type Periodo } from "../period"
-import { useConsulta } from "../use-query"
+import { useConsulta } from "@/hooks/use-consulta"
 import { DistintivoPuntaje } from "./badges"
-import { TarjetaKpi } from "./kpi-card"
-import { AvatarTester } from "./tester-avatar"
+import { TarjetaKpi } from "@/components/kpi-card"
+import { AvatarUsuario } from "@/components/user-avatar"
 
 /** Modo pruebas en Inicio (temporal): KPIs de todos los testers, banner y últimos viajes. */
 export function SeccionPruebasInicio({ periodo, aside }: { periodo: Periodo; aside: ReactNode }) {
@@ -111,7 +111,7 @@ export function SeccionPruebasInicio({ periodo, aside }: { periodo: Periodo; asi
                   to={`/panel/pruebas/viajes/${v.id}`}
                   className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-3 hover:bg-muted"
                 >
-                  <AvatarTester id={v.conductor.id} nombre={v.conductor.nombre} />
+                  <AvatarUsuario id={v.conductor.id} nombre={v.conductor.nombre} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-subtitulo">{v.conductor.nombre}</span>
                     <span className="block truncate text-cuerpo-pequeno text-muted-foreground">

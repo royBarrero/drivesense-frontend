@@ -1,15 +1,14 @@
-import { CLASE_CALIFICACION, type Calificacion } from "@/lib/score"
+import { DistintivoPuntaje as DistintivoGenerico } from "@/components/score-badge"
+import type { Calificacion } from "@/lib/score"
 import { cn } from "@/lib/utils"
 
 import { ESTILO_EVENTO } from "../constants"
 import type { EstadoRecorrido, TipoEvento } from "../types"
 
-/** DriveScore con el color de su calificación; un descartado lo dice en lugar del número. */
+/** DriveScore de un viaje: un descartado lo dice en lugar del número. */
 export function DistintivoPuntaje({
-  drivescore,
-  calificacion,
   estado = "finalizado",
-  className,
+  ...props
 }: {
   drivescore: number | null
   calificacion: Calificacion | null
@@ -23,20 +22,7 @@ export function DistintivoPuntaje({
       </span>
     )
   }
-  if (drivescore === null || calificacion === null) {
-    return <span className="font-numeros text-numero-metrica text-texto-terciario">—</span>
-  }
-  return (
-    <span
-      className={cn(
-        "inline-flex min-w-12 justify-center rounded-full px-3 py-1 font-numeros text-numero-metrica font-bold tabular-nums",
-        CLASE_CALIFICACION[calificacion],
-        className,
-      )}
-    >
-      {drivescore}
-    </span>
-  )
+  return <DistintivoGenerico {...props} />
 }
 
 /** Cantidad de eventos de un tipo: con su tinte si hubo, gris en 0 y "—" si no se sabe. */

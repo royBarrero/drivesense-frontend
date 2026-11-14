@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react"
-import { BarChart3, Users } from "lucide-react"
+import { BarChart3 } from "lucide-react"
 
 import { useSesion } from "@/features/auth/session-context"
 import { useAccesoPruebas } from "@/features/pruebas/access-context"
@@ -48,9 +48,6 @@ function Proximamente() {
     <section className="h-fit rounded-xl border border-dashed border-borde-fuerte bg-muted p-5">
       <h2 className="text-subtitulo-grande">Próximamente</h2>
       <ul className="mt-4 flex flex-col gap-5">
-        <ItemProximo icono={<Users className="size-5" />} titulo="Conductores de tu flota">
-          Registra conductores y revisa el DriveScore de cada uno.
-        </ItemProximo>
         <ItemProximo icono={<BarChart3 className="size-5" />} titulo="Reportes">
           Desempeño por conductor y por periodo, exportable.
         </ItemProximo>
