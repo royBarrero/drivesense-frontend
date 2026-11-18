@@ -1,6 +1,8 @@
 import type { Calificacion } from "@/lib/score"
 
-export type TipoEvento = "frenada_brusca" | "aceleracion_severa" | "giro_agresivo" | "exceso_velocidad"
+import type { EventoViaje, PuntoRuta, TipoEvento } from "@/lib/trip-types"
+
+export type { PuntoRuta, TipoEvento }
 export type EstadoRecorrido = "finalizado" | "descartado"
 export type ResultadoValidacion = "correcto" | "falso"
 export type FiltroEventos = "con" | "sin"
@@ -54,23 +56,8 @@ export interface PaginaRecorridos {
   total: number
 }
 
-export interface PuntoRuta {
-  lat: number
-  lon: number
-  fecha: string
-  velocidad_kmh: number
-}
-
-export interface EventoPruebas {
+export interface EventoPruebas extends EventoViaje {
   id: number
-  tipo: TipoEvento
-  fecha: string
-  lat: number
-  lon: number
-  velocidad_kmh: number
-  intensidad: number
-  duracion_s: number | null
-  velocidad_maxima_kmh: number | null
   validacion: ResultadoValidacion | null
 }
 

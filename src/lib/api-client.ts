@@ -16,12 +16,25 @@ export class ErrorApi extends Error {
 
   readonly codigo: number | null
   readonly errores: ErrorCampo[]
+  /** Código propio del backend (`plan_limite`, `plan_funcion`…); nulo en los demás errores. */
+  readonly codigoError: string | null
 
-  constructor(mensaje: string, codigo: number | null = null, errores: ErrorCampo[] = []) {
+  constructor(
+    mensaje: string,
+    codigo: number | null = null,
+    errores: ErrorCampo[] = [],
+    codigoError: string | null = null,
+  ) {
     super(mensaje)
     this.name = "ErrorApi"
     this.codigo = codigo
     this.errores = errores
+    this.codigoError = codigoError
+  }
+
+  /** El plan de la empresa no permite la acción: se invita a mejorarlo. */
+  get esDePlan(): boolean {
+    return this.codigo === 403 && this.codigoError?.startsWith("plan_") === true
   }
 
   get mensaje(): string {
@@ -60,6 +73,58 @@ export async function peticion<T>(ruta: string, { metodo = "GET", cuerpo }: Opci
   if (typeof detail !== "string") {
     throw new ErrorApi(ErrorApi.INESPERADO, respuesta.status)
   }
-  const errores = (datos as { errores?: ErrorCampo[] }).errores
-  throw new ErrorApi(detail, respuesta.status, Array.isArray(errores) ? errores : [])
+  const { errores, codigo } = datos as { errores?: ErrorCampo[]; codigo?: unknown }
+  throw new ErrorApi(
+    detail,
+    respuesta.status,
+    Array.isArray(errores) ? errores : [],
+    typeof codigo === "string" ? codigo : null,
+  )
+}
+
+/**
+ * Descarga un archivo de la API (CSV, PDF…). `peticion` espera JSON, así que aquí se pide el
+ * archivo con `fetch`. El nombre sale del `Content-Disposition`; si no viene, `nombreRespaldo`.
+ */
+export async function descargarArchivo(ruta: string, nombreRespaldo: string) {
+  const token = leerToken()
+  let respuesta: Response
+  try {
+    respuesta = await fetch(`${URL_API}${ruta}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+  } catch {
+    throw new ErrorApi(ErrorApi.SIN_CONEXION)
+  }
+  if (!respuesta.ok) {
+    const datos = (await respuesta.json().catch(() => null)) as {
+      detail?: unknown
+      errores?: ErrorCampo[]
+      codigo?: unknown
+    } | null
+    const detalle = typeof datos?.detail === "string" ? datos.detail : ErrorApi.INESPERADO
+    throw new ErrorApi(
+      detalle,
+      respuesta.status,
+      Array.isArray(datos?.errores) ? datos.errores : [],
+      typeof datos?.codigo === "string" ? datos.codigo : null,
+    )
+  }
+  const nombre = respuesta.headers.get("Content-Disposition")?.match(/filename="([^"]+)"/)?.[1] ?? nombreRespaldo
+  const url = URL.createObjectURL(await respuesta.blob())
+  const enlace = document.createElement("a")
+  enlace.href = url
+  enlace.download = nombre
+  enlace.click()
+  URL.revokeObjectURL(url)
+}
+
+/** `?a=1&b=2` sin los valores vacíos. */
+export function consulta(parametros: Record<string, string | number | undefined>) {
+  const busqueda = new URLSearchParams()
+  for (const [clave, valor] of Object.entries(parametros)) {
+    if (valor !== undefined && valor !== "") busqueda.set(clave, String(valor))
+  }
+  const texto = busqueda.toString()
+  return texto ? `?${texto}` : ""
 }

@@ -8,6 +8,7 @@ const LOCALE = "es-BO"
 
 const hora = new Intl.DateTimeFormat(LOCALE, { hour: "2-digit", minute: "2-digit", hour12: false })
 const diaMes = new Intl.DateTimeFormat(LOCALE, { day: "numeric", month: "short" })
+const fechaCompleta = new Intl.DateTimeFormat(LOCALE, { day: "numeric", month: "short", year: "numeric" })
 
 /** Iniciales de las dos primeras palabras: "Luis Quispe" → "LQ". */
 export function iniciales(nombre: string) {
@@ -22,6 +23,11 @@ export function iniciales(nombre: string) {
 /** Primera palabra del nombre, para los saludos. */
 export function primerNombre(nombre: string) {
   return nombre.trim().split(/\s+/)[0] ?? ""
+}
+
+/** "15 nov 2026" */
+export function formatearFechaCompleta(fecha: Date | string) {
+  return fechaCompleta.format(new Date(fecha)).replaceAll(".", "").replaceAll(" de ", " ")
 }
 
 /** "08:10" */
@@ -79,4 +85,13 @@ export function formatearDuracion(segundos: number) {
 /** Velocidad redondeada: "68 km/h". */
 export function formatearVelocidad(kmh: number) {
   return `${Math.round(kmh)}${NBSP}km/h`
+}
+
+const diaLargo = new Intl.DateTimeFormat(LOCALE, { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" })
+
+/** "viernes 13 de noviembre" a partir de "2026-11-13". La fecha ya viene en la zona de la
+ *  empresa: se formatea tal cual, sin depender de la zona del navegador. */
+export function formatearDiaLargo(dia: string) {
+  const [anio, mes, diaMes] = dia.split("-").map(Number)
+  return diaLargo.format(new Date(Date.UTC(anio, mes - 1, diaMes)))
 }

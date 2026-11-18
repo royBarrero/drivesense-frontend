@@ -7,18 +7,16 @@ import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip } from "react-
 import { formatearHora } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
-import { ESTILO_EVENTO } from "../constants"
-import type { EventoPruebas, PuntoRuta } from "../types"
+import { ESTILO_EVENTO } from "@/lib/events"
+import { ATRIBUCION, MOSAICOS } from "@/lib/map"
+import type { EventoViaje, PuntoRuta } from "@/lib/trip-types"
 
-// Mismo proveedor que la app (trip_map.dart); su política exige la atribución visible
-const MOSAICOS = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-const ATRIBUCION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 
 /**
  * Ruta y eventos del viaje (docs/diseno.md, 8.7). Los colores van como clases en los
  * trazos SVG: el CSS pisa los atributos que pone Leaflet.
  */
-export function MapaViaje({ ruta, eventos }: { ruta: PuntoRuta[]; eventos: EventoPruebas[] }) {
+export function MapaViaje({ ruta, eventos }: { ruta: PuntoRuta[]; eventos: EventoViaje[] }) {
   const puntos: LatLngTuple[] = ruta.map((p) => [p.lat, p.lon])
   const todos: LatLngTuple[] = [...puntos, ...eventos.map((e): LatLngTuple => [e.lat, e.lon])]
 
@@ -66,9 +64,9 @@ export function MapaViaje({ ruta, eventos }: { ruta: PuntoRuta[]; eventos: Event
             <Tooltip>Fin</Tooltip>
           </CircleMarker>
         )}
-        {eventos.map((e) => (
+        {eventos.map((e, i) => (
           <CircleMarker
-            key={e.id}
+            key={`${e.fecha}-${i}`}
             center={[e.lat, e.lon]}
             radius={7}
             pathOptions={{

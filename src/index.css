@@ -54,6 +54,8 @@
   --ds-encabezado-texto-secundario: #9ca3af;
 
   --ds-gradiente-score: linear-gradient(90deg, #10b981, #06b6d4);
+  /* Cian final del degradado, para el <linearGradient> SVG del anillo */
+  --ds-gradiente-score-fin: #06b6d4;
   --ds-gradiente-relleno-grafica: linear-gradient(
     180deg,
     rgb(16 185 129 / 0.15),

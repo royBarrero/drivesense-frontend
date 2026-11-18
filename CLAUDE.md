@@ -1,0 +1,93 @@
+# drivesense-frontend
+
+Panel web B2B para **administradores de empresa** (flotas y aseguradoras). Los conductores no usan el panel: usan la app móvil. El contexto general del proyecto (módulos, HU, roles, multitenancy) está en `../CLAUDE.md`. **Todo lo visual se rige por [`docs/diseno.md`](docs/diseno.md).**
+
+## Entorno
+
+- React 19.3, Vite 8, TypeScript, Tailwind CSS v4 (plugin `@tailwindcss/vite`, sin `tailwind.config`), Shadcn/ui (primitivas Radix, preset **Nova** = `style: radix-nova`, íconos Lucide), ESLint. Todo el equipo usa **Node 24**.
+- Alias `@` → `src` (en `vite.config.ts` y en `tsconfig.app.json`).
+- El repo todavía no está inicializado en Git.
+- Paquetes: `react-router` (8, `createBrowserRouter`), `react-hook-form` + `zod` 4 + `@hookform/resolvers`, fuentes con `@fontsource-variable`, `leaflet` + `react-leaflet` (mapa del modo pruebas, mosaicos de OpenStreetMap).
+- **`cn` siempre desde `@/lib/utils`**, nunca desde el paquete `cn`: la versión local registra los tamaños de texto y las sombras propias del tema. Sin eso, `cn("text-cuerpo text-foreground")` elimina `text-cuerpo` (lo toma por un color). Al agregar un componente con `npx shadcn add`, cambiar su import de `cn`. Si se crea un token nuevo de `--text-*` o `--shadow-*`, añadirlo también en `src/lib/utils.ts`.
+- ESLint: la regla `react-refresh/only-export-components` está desactivada solo en `src/components/ui/` (los componentes de Shadcn exportan sus variantes).
+
+## Estado actual
+
+- Implementado (HU-03): tema completo en `src/index.css`; landing con inicio de sesión del admin (`/`); registro de empresa (`/registro`); panel con menú lateral oscuro (`src/app/panel-layout.tsx`, rutas anidadas bajo `/panel`; ítems Inicio, Conductores, Reportes y Plan) e Inicio (`src/app/home-page.tsx` + `src/app/home/`: bloque oscuro de bienvenida con empresa, plan y el anillo del DriveScore de la flota en 7 días, KPIs, top 3 de destacados y a vigilar, accesos rápidos y, sin conductores, primeros pasos; usa `GET /flotas/tablero?periodo=7d`; ver `docs/diseno.md` 8.9; con la cuenta de pruebas, además el modo pruebas al final).
+- Rutas en `src/app/router.tsx`: `SoloSinSesion` (landing y registro redirigen a `/panel` si hay token guardado) y `RutaProtegida` (`/panel`).
+- Sesión: token en `localStorage` (`src/lib/session.ts`). `SesionProvider` (`src/features/auth/session-provider.tsx`) lo valida con `GET /auth/yo`: 401 → borra el token; sin conexión → mensaje con "Reintentar" sin borrar el token. Acceso con `useSesion()` (`session-context.ts`).
+- Cliente: `peticion()` y `ErrorApi` en `src/lib/api-client.ts` (URL de `VITE_API_URL`, ver `.env.example`).
+- Formularios: react-hook-form en modo `onTouched` (errores al salir del campo) con esquemas zod en `features/auth/validation.ts`, que replican las reglas del backend. El formulario de registro tiene la misma forma que el cuerpo de la API, así que los `campo` de un 422 se asignan con `setError` tal cual.
+- Componentes propios compartidos en `src/components/` (`Logo`, `AvisoError`, `CampoContrasenia`, `TarjetaKpi`, `DistintivoPuntaje` en `score-badge.tsx`, `AvatarUsuario`); hook `useConsulta` en `src/hooks/use-consulta.ts`; `consulta()` (query string) en `lib/api-client.ts`; los de Shadcn en `src/components/ui/` (`select.tsx` con el tema aplicado). Formatos de números y fechas en `src/lib/format.ts` (es-BO, NBSP entre número y unidad) y calificación del DriveScore con sus colores en `src/lib/score.ts`.
+- Prueba en el navegador: backend en `127.0.0.1:8000` + `npx vite --port 5173 --strictPort`.
+- Producción: `Dockerfile` multi-stage (build con Node 24, `VITE_API_URL` como build arg obligatorio; se sirve con Caddy según `deploy/Caddyfile`, con fallback de SPA y caché larga para `assets/`). La imagen la construye el `deploy/docker-compose.yml` del backend; ver su `docs/despliegue.md`.
+- `npm run lint` también revisa `.kilo/worktrees/` si existe (copias de otra herramienta, con errores ajenos): para revisar solo el panel, `npx eslint . --ignore-pattern ".kilo/**"`.
+
+## Conductores (HU-24)
+
+`src/features/conductores/`, rutas `/panel/conductores` (`pages/drivers-page.tsx`) y `/panel/conductores/:id` (perfil, HU-25) y `/panel/conductores/:id/viajes/:viajeId` (detalle del viaje). Usa los endpoints `/flotas/*` del backend (ver su CLAUDE.md).
+- Página: tarjetas de resumen (conductores, DriveScore promedio con su calificación, eventos de riesgo), búsqueda (con espera de 300 ms), periodo (7 días, 30 días, Todo; por defecto 30 días), orden (DriveScore, Viajes, Último viaje) con botón de sentido y paginación de 20. Los filtros viven en la URL (`periodo`, `q`, `orden`, `dir`, `pagina`). Sin viajes → "Sin viajes todavía".
+- Alta (`register-dialog.tsx`, componente `dialog` de Shadcn escrito a mano con el tema): nombre, correo y teléfono; correo repetido (409) y 422 van debajo del campo. Al crear, `CredencialTemporal` muestra la contraseña temporal **una sola vez** con botón de copiar; con ella a la vista, Escape y clic afuera no cierran el diálogo. `new-password-dialog.tsx` confirma y genera otra (botón de llave en cada fila).
+- Perfil (HU-25, `pages/driver-profile-page.tsx`, `/panel/conductores/:id`): cabecera con el conductor y `BotonesPeriodo` (`components/period-buttons.tsx`: cápsula con 7 días / 30 días / Todo el tiempo, reutilizable; `periodo` en la URL, por defecto 30 días), DriveScore promedio (el color del distintivo marca la calificación) con **una sola etiqueta**, `DistintivoRiesgo` (alto / medio / bajo), tarjetas (viajes, distancia, eventos por 10 km, tendencia: con `tendencia_base = mitades` en "Todo" rotula "segunda mitad frente a la primera"), `GraficoEvolucion` (SVG propio, sin librería; se dibuja al ancho real del contenedor con `ResizeObserver` para que el texto del eje no se encoja; cada punto con su `<title>`), `Desglose` con el punto más débil marcado, `EventosPorTipo` y `TablaViajesRecientes` (10). Sin viajes en el periodo → "Todavía no hay datos". "Volver" usa `state.volver` (el listado con sus filtros). Un 404 (conductor de otra empresa) muestra el mensaje del backend.
+- Detalle del viaje (`pages/driver-trip-page.tsx`, `/panel/conductores/:id/viajes/:viajeId`, carga diferida por Leaflet): métricas, `MapaViaje`, desglose, eventos por tipo y recomendaciones (con la cápsula "Con IA" si alguna tiene `generada_por_ia`: las redactó la IA del backend); sin los botones Correcto / Falso (son solo de Pruebas). "Volver" conserva el periodo del perfil.
+- **Compartido con Pruebas** (movido fuera de `features/pruebas/` para que sobreviva a su retiro): `components/trip-map.tsx` (`MapaViaje`), `components/score-breakdown.tsx` (`Desglose`), `components/event-counts.tsx` (`EventosPorTipo`), `lib/events.ts` (`ESTILO_EVENTO`, `TIPOS_EVENTO`) y `lib/trip-types.ts` (`TipoEvento`, `PuntoRuta`, `EventoViaje`). `pruebas/constants.ts` y `pruebas/types.ts` los reexportan.
+- Pestañas del perfil (HU-26): `Resumen | Eventos de riesgo` en la cabecera (`BotonesPeriodo` con `nombre="Vista"`), junto al DriveScore del periodo. La URL guarda `vista` (`eventos`; sin ella, resumen), `periodo`, `tipo` y `pagina`; cambiar de pestaña quita `tipo` y `pagina`. En Resumen los botones de periodo van bajo la cabecera.
+- Pestaña **Eventos de riesgo** (`components/risk-events-tab.tsx`, `PestaniaEventos`, con `React.lazy` para no cargar Leaflet en el Resumen): `FiltroTipoEvento` (chips Todos / Frenadas / Aceleraciones / Giros / Excesos con ícono y contador del periodo), `BotonesPeriodo`, `ResumenPatrones` (tarjetas de tipo más frecuente con barra apilada, día y franja con más eventos; con menos de 10 eventos, el aviso "Todavía no hay suficientes eventos…" con "N de 10"), `MapaEventosConductor` (todos los eventos con el color de su tipo; círculos punteados con "N frenadas en esta zona" donde se repite un tipo; clic en un punto abre el viaje) e `HistorialEventos` (agrupado por día con `formatearDiaLargo`, 10 por página; la fila abre `/panel/conductores/:id/viajes/:recorrido_id` con `state.volver`). Sin eventos en el periodo: mensaje positivo con "Ver todo el tiempo" (oculto si ya es "Todo el tiempo"). Los patrones y los contadores usan siempre todos los tipos; el filtro de tipo solo cambia el historial y el mapa.
+- Compartido: `lib/map.ts` (mosaicos y atribución de OpenStreetMap, usados por `MapaViaje` y `MapaEventosConductor`), `lib/event-format.ts` (`detalleEvento`, antes en pruebas) y, en `ESTILO_EVENTO`, el `icono` y el `trazo` de cada tipo.
+- **Exportar reporte (HU-27)**: botón "Exportar reporte" (outline, ícono `Download`) en el listado y en la cabecera del perfil, que abre `components/export-report-dialog.tsx` (`DialogoExportarReporte`: periodo 7 días / 30 días / Todo el tiempo / Rango de fechas con dos `Input type="date"` y formato PDF / CSV; parte del periodo de la página). Sin `conductor` exporta la flota. La descarga usa `descargarArchivo(ruta, nombreRespaldo)` de `lib/api-client.ts` (fetch con Bearer; el nombre sale del `Content-Disposition`; `descargarCsv` de Pruebas la reutiliza). Un 409 (sin viajes en el periodo) o un 422 se muestran dentro del diálogo con `AvisoError` y no se descarga nada.
+- **Reportes (tablero de la flota, no es una HU)**: `features/reportes/`, ruta `/panel/reportes` (`pages/reports-page.tsx`, ítem "Reportes" del menú) con `GET /flotas/tablero`. `periodo` en la URL (`BotonesPeriodo`, por defecto 30 días). Tarjetas (DriveScore con su calificación, kilómetros, eventos por cada 10 km, conductores en riesgo), `RankingBarras` (`components/ranking-bars.tsx`: "Conductores destacados" por DriveScore y "Conductores a vigilar" por eventos por 10 km; barras de `div` con `bg-primario` / `bg-advertencia`; cada fila abre `/panel/conductores/:id` con `state.volver` y `volverTexto` "Volver a reportes"), `DistribucionCalificacion` (`components/rating-distribution.tsx`, con los colores `bg-primario`, `bg-secundario`, `bg-advertencia`, `bg-peligro`), `EventosPorTipo` y `GraficoEvolucion` (ahora en `components/evolution-chart.tsx`, compartido con el perfil; en Reportes agrupa por día o por semana). Los rankings incluyen solo a quien supera la distancia mínima del backend (20 km; el texto la lee de `distancia_minima_ranking_m`). Sin conductores o sin viajes en el periodo, un mensaje punteado en lugar de los gráficos. Sin tokens nuevos. El Inicio ya no tiene el bloque "Próximamente".
+- Los periodos los calcula el backend con la zona horaria de la empresa; el panel manda `7d`, `30d` o `todo` (y, solo al exportar, `rango` con `desde` y `hasta`).
+
+## Plan (HU-28)
+
+`src/features/suscripciones/`, ruta `/panel/plan` (`pages/plan-page.tsx`, ítem "Plan" del menú) con los endpoints `/suscripciones/*` del backend (ver su sección "Planes": Gratis, Premium y Empresas; pago simulado).
+- `PlanProvider` (en `/panel`, `router.tsx`) consulta `GET /suscripciones/plan` una vez; `usePlan()` (`plan-context.ts`) da `{plan, error, recargar}` (`plan` es nulo mientras carga). Ayudas: `incluye(plan, funcion)` (`null` mientras no se conoce) y `limiteDeConductoresAlcanzado(plan)`. Tras registrar un conductor o cambiar de plan se llama a `recargar`.
+- Página: cuatro `TarjetaKpi` (plan, estado, vencimiento, conductores con barra de uso), `ComparativoPlanes` (3 tarjetas, el plan actual marcado; botones Cambiar / Bajar / Renovar un mes) y `DialogoCambiarPlan` con el resumen (plan, precio, duración, vencimiento) y la nota "Pago simulado: no se realiza ningún cobro". Al bajar a Gratis avisa que no se borra nada y cuántos conductores sobran.
+- `AvisoVencimiento` (arriba de todo el panel, en `panel-layout.tsx`) cuando `aviso_vencimiento`; `NotaHistorial` (Conductores, perfil y Reportes) recuerda la ventana de historial del plan; `AvisoLimiteConductores` en Conductores deshabilita "Registrar conductor" al llegar al tope y sugiere mejorar el plan.
+- **Funciones bloqueadas** (`components/locked-feature.tsx`, `FuncionBloqueada`: candado, texto y botón "Mejorar plan"): el diálogo de exportar (Gratis), la pestaña Eventos de riesgo (sin mapa ni patrones; el listado sigue; ya no se piden `/eventos/resumen` ni `/eventos/mapa`) y Reportes (solo tarjetas cuando `tablero.completo` es falso). El backend es quien valida. Sus 403 por plan traen `codigo` (`plan_limite`, `plan_funcion`): `ErrorApi.codigoError` y `esDePlan` los distinguen de un 403 por permisos, y solo entonces `AvisoError` (con `mejorarPlan`) añade el enlace "Mejora tu plan" (alta de conductor y exportar).
+- **Periodos**: con historial limitado en días (Gratis) "Todo el tiempo" queda bloqueado (`periodosBloqueados(plan)`, `BotonesPeriodo` con `bloqueadas`: candado y deshabilitado; si la URL trae `todo`, se usa el periodo inicial) en Conductores, perfil, eventos y Reportes.
+- Los conductores no dependen del plan (usan la app móvil).
+
+## Modo pruebas (temporal)
+
+Herramienta para ver los viajes reales de los testers antes del despliegue. **No es parte del producto: se retira cuando exista el panel empresarial.** Todo está en `src/features/pruebas/` y usa los endpoints `/pruebas/*` del backend (ver su CLAUDE.md).
+- Acceso: `AccesoPruebasProvider` (en `/panel`, `router.tsx`) consulta `GET /pruebas/acceso` una vez; `useAccesoPruebas()` da `null` (comprobando), `true` o `false` (403/404 u otro error). `RutaPruebas` manda a `/panel` sin acceso. Solo la cuenta configurada en `PRUEBAS_CORREO` del backend lo tiene; en el menú se muestra como "Superadmin".
+- Inicio: `SeccionPruebasInicio` (KPIs, banner y últimos 4 viajes) con un selector de periodo (Hoy, 7 días, 30 días, Todo = medianoche local de hace 0/6/29 días, `period.ts`).
+- `/panel/pruebas` (`pages/trips-page.tsx`): pestañas Viajes / Testers, KPIs, filtros en la URL (`vista`, `periodo`, `tester`, `eventos`, `pagina`), tabla paginada (20 por página) y "Exportar CSV" (`descargarCsv`, fetch con Bearer porque `peticion` espera JSON).
+- `/panel/pruebas/viajes/:id` (`pages/trip-detail-page.tsx`, carga diferida con `lazy` porque trae Leaflet): métricas, mapa (`MapaViaje`; los colores van como clases en los trazos SVG), eventos con Correcto / Falso (actualización optimista, se revierte si falla; pulsar la marca puesta la quita), desglose y eventos por tipo. "Volver a viajes" conserva los filtros (`state.volver`).
+- Datos con `useConsulta(clave, fn)` (`@/hooks/use-consulta`): recarga al cambiar la clave, conserva los datos anteriores mientras carga y un 401 cierra la sesión.
+- `LIMITE_VELOCIDAD_KMH` (`constants.ts`) copia el límite fijo de la app: si cambia allá, cambiarlo aquí.
+- **Para retirarlo:** borrar `src/features/pruebas/`; en `router.tsx` quitar `AccesoPruebasProvider` y las rutas `pruebas*`; en `panel-layout.tsx` el grupo "Herramientas" y el rol "Superadmin"; en `home-page.tsx` el selector y `SeccionPruebasInicio`; la sección 8.7 de `docs/diseno.md`; desinstalar `leaflet`, `react-leaflet` y `@types/leaflet` si nadie más los usa; y esta sección.
+
+## API (drivesense-backend)
+
+- URL base desde `VITE_API_URL` (por defecto `http://127.0.0.1:8000` en desarrollo) + `/api/v1`. JWT en el header `Authorization: Bearer <token>`.
+- El CORS del backend permite **solo** `http://localhost:5173`. Si ese puerto está ocupado, Vite arranca en el 5174 y las peticiones fallan por CORS: hay que liberar el puerto o añadir el origen a `CORS_ORIGENES` en el `.env` del backend.
+- Endpoints de la HU-03:
+  - `POST /auth/empresa/registro`: cuerpo `{empresa: {nombre, tipo, email_contacto, telefono}, administrador: {nombre, email, telefono, contrasenia}}`. Responde 201 con `{access_token, token_type, usuario}`.
+  - `POST /auth/empresa/login`: solo administradores. Un conductor recibe 403 "Esta cuenta es de conductor. Ingresa desde la app móvil".
+  - `GET /auth/yo`: para el admin incluye `empresa: {id, nombre, tipo}`.
+- Formato de errores:
+  - 422: `{"detail": "Datos inválidos", "errores": [{"campo": "...", "mensaje": "..."}]}`. Los campos anidados llegan como `empresa.telefono` o `administrador.email`: se asignan al campo del formulario por su ruta completa.
+  - 401, 403, 409: `{"detail": "mensaje en español"}`. Mostrar `detail` tal cual, sin inventar mensajes.
+- El token dura 7 días y no hay refresh ni logout en el backend: cerrar sesión = borrar el token. Un 401 en un endpoint protegido significa sesión inválida o expirada.
+
+## Estructura
+
+```
+src/
+├── app/                → configuración general (rutas, proveedores)
+├── components/         → componentes propios compartidos (Logo, AvisoError…)
+├── components/ui/      → componentes de Shadcn (no editarlos salvo para aplicar el tema)
+├── lib/                → utilidades compartidas (cliente HTTP, manejo de sesión)
+└── features/<modulo>/  → páginas, componentes, llamadas a la API y tipos del módulo
+```
+
+- Módulos en español sin tildes: `auth`, `conductores`, `flotas`, `reportes`, `suscripciones` (y `pruebas`, temporal). **Crear cada módulo solo cuando se implemente su primera historia.**
+- **Nombres:** archivos y carpetas en inglés y kebab-case, como Shadcn (`login-page.tsx`, `api-client.ts`). Componentes, variables, funciones y tipos en español (`LoginPagina`, `iniciarSesion`, `UsuarioAdmin`). Textos de la interfaz en español.
+
+## Reglas
+
+- **Nunca** colores, tamaños ni radios escritos directamente en los componentes (`bg-[#…]`, `text-[15px]`): todo sale de las variables CSS y de las clases de Tailwind definidas en `docs/diseno.md`. Un valor nuevo se agrega primero a la guía y luego a `src/index.css`.
+- Solo modo claro por ahora, con las variables preparadas para el oscuro (`docs/diseno.md`, sección 9).
+- Avanzar paso a paso: implementar solo lo que se pida, sin adelantar funcionalidades.

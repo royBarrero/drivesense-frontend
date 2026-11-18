@@ -6,13 +6,13 @@ const NUMERO = /\d/
 const TELEFONO = /^\d{8}$/
 
 /** Correo normalizado: sin espacios y en minúsculas, igual que al enviarlo. */
-const correo = z
+export const correo = z
   .string()
   .trim()
   .toLowerCase()
   .pipe(z.email({ error: "Ingresa un correo válido" }))
 
-const telefono = z.string().regex(TELEFONO, { error: "El teléfono debe tener 8 dígitos" })
+export const telefono = z.string().regex(TELEFONO, { error: "El teléfono debe tener 8 dígitos" })
 
 /** Error de la contraseña cuando no cumple los requisitos (la lista ya lo muestra). */
 export const MENSAJE_REQUISITOS = "La contraseña no cumple los requisitos"

@@ -6,7 +6,7 @@ import { ESTILO_EVENTO, TIPOS_EVENTO } from "../constants"
 import { textoDispositivo } from "../format"
 import type { RecorridoPruebas } from "../types"
 import { ConteoEvento, DistintivoPuntaje } from "./badges"
-import { AvatarTester } from "./tester-avatar"
+import { AvatarUsuario } from "@/components/user-avatar"
 
 const CLASE_CABECERA = "px-3 py-3 text-left text-etiqueta font-medium text-muted-foreground uppercase"
 
@@ -42,7 +42,7 @@ export function TablaViajes({ recorridos, volver }: { recorridos: RecorridoPrueb
             >
               <td className="px-3 py-3">
                 <span className="flex items-center gap-3">
-                  <AvatarTester id={v.conductor.id} nombre={v.conductor.nombre} />
+                  <AvatarUsuario id={v.conductor.id} nombre={v.conductor.nombre} />
                   <span className="min-w-0 max-w-36">
                     <Link
                       to={`/panel/pruebas/viajes/${v.id}`}

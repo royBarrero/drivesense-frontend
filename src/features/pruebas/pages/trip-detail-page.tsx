@@ -9,13 +9,15 @@ import { cn } from "@/lib/utils"
 import { obtenerDetalle } from "../api"
 import { DistintivoPuntaje } from "../components/badges"
 import { ListaEventos } from "../components/event-list"
-import { TarjetaKpi } from "../components/kpi-card"
-import { AvatarTester } from "../components/tester-avatar"
-import { MapaViaje } from "../components/trip-map"
+import { TarjetaKpi } from "@/components/kpi-card"
+import { AvatarUsuario } from "@/components/user-avatar"
+import { Desglose } from "@/components/score-breakdown"
+import { EventosPorTipo } from "@/components/event-counts"
+import { MapaViaje } from "@/components/trip-map"
 import { ESTILO_EVENTO, LIMITE_VELOCIDAD_KMH, TIPOS_EVENTO } from "../constants"
 import { textoDispositivoCompleto } from "../format"
 import type { DetallePruebas } from "../types"
-import { useConsulta } from "../use-query"
+import { useConsulta } from "@/hooks/use-consulta"
 
 /** Pruebas · Detalle del viaje (temporal). */
 export function DetalleViajePruebasPagina() {
@@ -55,7 +57,7 @@ function Detalle({ viaje }: { viaje: DetallePruebas }) {
   return (
     <>
       <section className="mt-6 flex flex-wrap items-center gap-5 rounded-xl border border-border bg-card p-5 shadow-tarjeta">
-        <AvatarTester id={viaje.conductor.id} nombre={viaje.conductor.nombre} grande />
+        <AvatarUsuario id={viaje.conductor.id} nombre={viaje.conductor.nombre} grande />
         <div className="min-w-0 flex-1">
           <h1 className="text-titulo">{viaje.conductor.nombre}</h1>
           <p className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-cuerpo text-muted-foreground">
@@ -129,7 +131,14 @@ function Detalle({ viaje }: { viaje: DetallePruebas }) {
 
           {conPuntaje && (
             <div className="flex flex-col gap-5">
-              <Desglose viaje={viaje} />
+              <Desglose
+                puntajes={{
+                  velocidad: viaje.puntaje_velocidad,
+                  frenadas: viaje.puntaje_frenadas,
+                  aceleraciones: viaje.puntaje_aceleraciones,
+                  giros: viaje.puntaje_giros,
+                }}
+              />
               <EventosPorTipo conteo={viaje.eventos_por_tipo} />
               <p className="flex gap-3 rounded-xl border border-border bg-muted p-5 text-cuerpo text-muted-foreground">
                 <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
@@ -150,52 +159,5 @@ function Aviso({ children }: { children: string }) {
       <CircleAlert className="mt-px size-5 shrink-0" aria-hidden="true" />
       {children}
     </p>
-  )
-}
-
-/** Mismo orden y colores que la app: la barra de cada categoría en el texto de su evento. */
-function Desglose({ viaje }: { viaje: DetallePruebas }) {
-  const categorias = [
-    { nombre: "Velocidad", puntaje: viaje.puntaje_velocidad, barra: ESTILO_EVENTO.exceso_velocidad.punto },
-    { nombre: "Frenadas", puntaje: viaje.puntaje_frenadas, barra: ESTILO_EVENTO.frenada_brusca.punto },
-    { nombre: "Aceleraciones", puntaje: viaje.puntaje_aceleraciones, barra: ESTILO_EVENTO.aceleracion_severa.punto },
-    { nombre: "Giros", puntaje: viaje.puntaje_giros, barra: ESTILO_EVENTO.giro_agresivo.punto },
-  ]
-  return (
-    <section className="rounded-xl border border-border bg-card p-5 shadow-tarjeta">
-      <h2 className="text-subtitulo-grande">Desglose del DriveScore</h2>
-      <ul className="mt-4 flex flex-col gap-4">
-        {categorias.map((c) => (
-          <li key={c.nombre}>
-            <div className="flex justify-between text-cuerpo">
-              <span>{c.nombre}</span>
-              <span className="font-numeros font-bold tabular-nums">{c.puntaje ?? "—"}</span>
-            </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-carril">
-              <div className={cn("h-full rounded-full", c.barra)} style={{ width: `${c.puntaje ?? 0}%` }} />
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-function EventosPorTipo({ conteo }: { conteo: DetallePruebas["eventos_por_tipo"] }) {
-  return (
-    <section className="rounded-xl border border-border bg-card p-5 shadow-tarjeta">
-      <h2 className="text-subtitulo-grande">Eventos por tipo</h2>
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        {TIPOS_EVENTO.map((tipo) => {
-          const estilo = ESTILO_EVENTO[tipo]
-          return (
-            <div key={tipo} className={cn("rounded-lg p-4", estilo.tinte)}>
-              <p className={cn("font-numeros text-puntaje tabular-nums", estilo.texto)}>{conteo?.[tipo] ?? 0}</p>
-              <p className={cn("mt-1 text-cuerpo font-medium", estilo.texto)}>{estilo.plural}</p>
-            </div>
-          )
-        })}
-      </div>
-    </section>
   )
 }
