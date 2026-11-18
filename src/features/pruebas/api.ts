@@ -1,5 +1,4 @@
-import { consulta, ErrorApi, peticion, URL_API } from "@/lib/api-client"
-import { leerToken } from "@/lib/session"
+import { consulta, descargarArchivo, ErrorApi, peticion } from "@/lib/api-client"
 
 import type {
   DetallePruebas,
@@ -45,25 +44,10 @@ export function desmarcarEvento(eventoId: number) {
   return peticion<null>(`/pruebas/eventos/${eventoId}/validacion`, { metodo: "DELETE" })
 }
 
-/** Descarga el CSV con los filtros actuales. `peticion` espera JSON: aquí se pide el archivo. */
-export async function descargarCsv(filtros: FiltrosRecorridos) {
-  let respuesta: Response
-  try {
-    respuesta = await fetch(`${URL_API}/pruebas/recorridos/exportar${consulta({ ...filtros })}`, {
-      headers: { Authorization: `Bearer ${leerToken() ?? ""}` },
-    })
-  } catch {
-    throw new ErrorApi(ErrorApi.SIN_CONEXION)
-  }
-  if (!respuesta.ok) {
-    const datos = (await respuesta.json().catch(() => null)) as { detail?: unknown } | null
-    const detalle = typeof datos?.detail === "string" ? datos.detail : ErrorApi.INESPERADO
-    throw new ErrorApi(detalle, respuesta.status)
-  }
-  const url = URL.createObjectURL(await respuesta.blob())
-  const enlace = document.createElement("a")
-  enlace.href = url
-  enlace.download = `viajes-pruebas-${new Date().toISOString().slice(0, 10)}.csv`
-  enlace.click()
-  URL.revokeObjectURL(url)
+/** Descarga el CSV con los filtros actuales. */
+export function descargarCsv(filtros: FiltrosRecorridos) {
+  return descargarArchivo(
+    `/pruebas/recorridos/exportar${consulta({ ...filtros })}`,
+    `viajes-pruebas-${new Date().toISOString().slice(0, 10)}.csv`,
+  )
 }

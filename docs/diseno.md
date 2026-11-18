@@ -78,6 +78,7 @@ Cada token tiene una variable CSS propia de DriveSense (`--ds-*`). La columna **
 |---|---|---|
 | `--ds-gradiente-score` | `linear-gradient(90deg, #10B981, #06B6D4)` | Anillo / barra de DriveScore |
 | `--ds-gradiente-relleno-grafica` | `linear-gradient(180deg, rgb(16 185 129 / 0.15), rgb(16 185 129 / 0))` | Relleno bajo la curva semanal |
+| `--ds-gradiente-score-fin` | `#06B6D4` **(derivado)** | Cian final del degradado, para el `<linearGradient>` SVG del anillo (el inicio es `--ds-primario`) |
 
 ### 1.2 Modo oscuro (FUTURO — documentado, no activo)
 
@@ -380,6 +381,20 @@ Reemplaza la propuesta clara (`bg-sidebar`): el menú es **oscuro**, como los bl
 - **Botones Correcto / Falso:** `outline` de 36 px; marcado, Correcto en `default` y Falso en `bg-destructive text-white`.
 
 ---
+
+### 8.8 Plan y funciones bloqueadas (HU-28)
+- **Página Plan**: encabezado como las demás (`text-etiqueta-grande` verde + `text-titulo-hero`), cuatro `TarjetaKpi` (plan, estado, vencimiento, conductores) y el comparativo en tres tarjetas (`rounded-xl border bg-card shadow-tarjeta p-5`); la del plan actual con `border-primary ring-1 ring-primary` y la etiqueta "Tu plan" (`bg-tinte-primario text-texto-exito`). Características con `Check` (`text-texto-exito`) o `X` (`text-texto-terciario`).
+- **Barra de conductores usados**: como la de progreso (6.5) pero invertida: `bg-primario` bajo 70 %, `bg-advertencia` de 70 a 99 % y `bg-peligro` al llegar al tope.
+- **Funciones bloqueadas** (`FuncionBloqueada`): recuadro punteado (`border-dashed border-borde-fuerte bg-muted rounded-xl`), círculo de 48 px con `Lock` (`bg-tinte-advertencia text-texto-evento-giro`), título `text-subtitulo-grande`, texto `text-cuerpo text-muted-foreground` y botón "Mejorar plan". Versión `compacto` (menos relleno) dentro de diálogos.
+- **Avisos** (vencimiento y límite de conductores): `bg-tinte-advertencia`, `border-advertencia/40`, texto `text-texto-evento-giro`; el de éxito al cambiar de plan usa `bg-tinte-primario text-texto-exito`; la nota de pago simulado, `bg-tinte-secundario text-texto-evento-velocidad`. Sin tokens nuevos.
+
+### 8.9 Inicio del panel (implementado)
+Datos de `GET /flotas/tablero` con periodo fijo de 7 días.
+- **Bloque de bienvenida** (`app/home/home-hero.tsx`): `bg-encabezado-fondo rounded-3xl shadow-tarjeta-elevada`, dos columnas desde 1024. A la izquierda, cápsulas de la empresa (borde `encabezado-borde`) y del plan (`bg-encabezado-acento/12 text-encabezado-acento`, enlaza a Plan), saludo `text-etiqueta-grande uppercase text-encabezado-acento`, nombre `text-titulo-landing-movil text-encabezado-texto`, resumen de la semana `text-subtitulo-landing text-encabezado-texto-secundario` y botones `sobreOscuro` / `contornoOscuro` (sin conductores, solo "Registrar conductores"). A la derecha, el anillo sobre dos círculos de la diana (8.3; el interior relleno con `fill-encabezado-fondo`) y la calificación en su distintivo (6.5). Ruta punteada `encabezado-acento` al 35 % cruzando el bloque.
+- **Anillo de DriveScore** (`components/score-ring.tsx`, `AnilloDriveScore`): 176 px, trazo de 12 con el degradado, carril `stroke-carril` (o `stroke-encabezado-borde` sobre oscuro), número `text-telemetria font-numeros`. Se llena con una transición de 1 s (sin animación con `prefers-reduced-motion`).
+- Debajo: cuatro `TarjetaKpi` (viajes, kilómetros, eventos por 10 km, conductores en riesgo); "Conductores destacados" y "a vigilar" (top 3, `app/home/home-rankings.tsx`; ocultos si nadie supera la distancia mínima; con plan Gratis, `FuncionBloqueada` compacta); y **Accesos rápidos** (`app/home/quick-links.tsx`: tarjetas con caja de ícono tintada que suben 2 px al pasar el ratón).
+- **Cápsula "Con IA"** (detalle del viaje, junto al título "Recomendaciones del viaje", si alguna la redactó la IA): `rounded-full bg-tinte-confort text-texto-evento-aceleracion text-etiqueta-grande uppercase`, ícono `Sparkles` de 16. Sin tokens nuevos; es la misma de la app.
+- Empresa sin conductores: **Primeros pasos** (`app/home/welcome-steps.tsx`) con tres pasos numerados (círculo de 48 `bg-tinte-primario` y número `bg-primary`).
 
 ## 9. Implementación en `src/index.css`
 

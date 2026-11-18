@@ -77,6 +77,7 @@ function FormularioConductor({
   alCrear: (conductor: ConductorCreado) => void
 }) {
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null)
+  const [errorDePlan, setErrorDePlan] = useState(false)
   const {
     control,
     handleSubmit,
@@ -90,6 +91,7 @@ function FormularioConductor({
 
   const enviar = async (datos: DatosConductorValidados) => {
     setErrorGeneral(null)
+    setErrorDePlan(false)
     try {
       alCrear(await registrarConductor(datos))
     } catch (e) {
@@ -104,7 +106,10 @@ function FormularioConductor({
       }
       const deCampo = e.errores.filter((x) => x.campo && (CAMPOS as readonly string[]).includes(x.campo))
       for (const x of deCampo) setError(x.campo as (typeof CAMPOS)[number], { message: x.mensaje })
-      if (deCampo.length === 0) setErrorGeneral(e.mensaje)
+      if (deCampo.length === 0) {
+        setErrorGeneral(e.mensaje)
+        setErrorDePlan(e.esDePlan)
+      }
     }
   }
 
@@ -116,7 +121,7 @@ function FormularioConductor({
           Se creará su cuenta en tu empresa con una contraseña temporal que verás una sola vez.
         </DialogDescription>
       </DialogHeader>
-      {errorGeneral && <AvisoError mensaje={errorGeneral} />}
+      {errorGeneral && <AvisoError mensaje={errorGeneral} mejorarPlan={errorDePlan} />}
       <CampoFormulario control={control} nombre="nombre" etiqueta="Nombre completo" autoComplete="off" />
       <CampoFormulario control={control} nombre="email" etiqueta="Correo" tipo="email" autoComplete="off" />
       <CampoFormulario

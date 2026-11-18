@@ -1,5 +1,5 @@
 import { KeyRound } from "lucide-react"
-import { useNavigate } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 
 import { DistintivoPuntaje } from "@/components/score-badge"
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,7 @@ export function TablaConductores({
   alNuevaContrasenia: (conductor: ConductorFlota) => void
 }) {
   const navegar = useNavigate()
+  const { pathname, search } = useLocation()
 
   return (
     <div className="overflow-x-auto">
@@ -38,7 +39,7 @@ export function TablaConductores({
           {conductores.map((c) => (
             <tr
               key={c.id}
-              onClick={() => navegar(`/panel/conductores/${c.id}`)}
+              onClick={() => navegar(`/panel/conductores/${c.id}`, { state: { volver: `${pathname}${search}` } })}
               className="cursor-pointer border-b border-border text-cuerpo hover:bg-muted"
             >
               <td className="px-3 py-3">

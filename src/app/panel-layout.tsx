@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from "react"
-import { BarChart3, FlaskConical, House, LogOut, Menu, Users, type LucideIcon } from "lucide-react"
+import { BarChart3, CreditCard, FlaskConical, House, LogOut, Menu, Users, type LucideIcon } from "lucide-react"
 import { NavLink, Outlet, useNavigate } from "react-router"
 
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { useSesion } from "@/features/auth/session-context"
+import { AvisoVencimiento } from "@/features/suscripciones/components/expiry-notice"
 import { useAccesoPruebas } from "@/features/pruebas/access-context"
 import { iniciales } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -42,6 +43,7 @@ export function PanelLayout() {
 
       <main className="min-w-0 flex-1 px-6 py-8 lg:px-8 lg:py-10 2xl:px-12">
         <div className="mx-auto max-w-contenido">
+          <AvisoVencimiento />
           <Outlet />
         </div>
       </main>
@@ -72,7 +74,12 @@ function MenuLateral({ alNavegar }: { alNavegar?: () => void }) {
         <ItemMenu a="/panel/conductores" icono={Users} alNavegar={alNavegar}>
           Conductores
         </ItemMenu>
-        <ItemProximo icono={BarChart3}>Reportes</ItemProximo>
+        <ItemMenu a="/panel/reportes" icono={BarChart3} alNavegar={alNavegar}>
+          Reportes
+        </ItemMenu>
+        <ItemMenu a="/panel/plan" icono={CreditCard} alNavegar={alNavegar}>
+          Plan
+        </ItemMenu>
       </GrupoMenu>
 
       {/* Temporal: modo pruebas */}
@@ -158,17 +165,5 @@ function ItemMenu({
         </>
       )}
     </NavLink>
-  )
-}
-
-function ItemProximo({ icono: Icono, children }: { icono: LucideIcon; children: ReactNode }) {
-  return (
-    <span className={cn(CLASE_ITEM, "cursor-default text-encabezado-texto-secundario/60")} aria-disabled="true">
-      <Icono className="size-5" aria-hidden="true" />
-      {children}
-      <span className="ml-auto rounded-full bg-encabezado-superficie px-2 py-0.5 text-ayuda text-encabezado-texto-secundario">
-        Pronto
-      </span>
-    </span>
   )
 }

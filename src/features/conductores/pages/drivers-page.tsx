@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ArrowDownWideNarrow, ArrowUpNarrowWide, CalendarDays, ListOrdered, Search, TriangleAlert, UserPlus, Users, Gauge } from "lucide-react"
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, CalendarDays, Download, ListOrdered, Search, TriangleAlert, UserPlus, Users, Gauge } from "lucide-react"
 import { useSearchParams } from "react-router"
 
 import { AvisoError } from "@/components/error-banner"
@@ -13,6 +13,10 @@ import { NOMBRE_CALIFICACION, TEXTO_CALIFICACION } from "@/lib/score"
 import { cn } from "@/lib/utils"
 
 import { listarConductores, obtenerResumen } from "../api"
+import { AvisoLimiteConductores } from "@/features/suscripciones/components/driver-limit-notice"
+import { NotaHistorial } from "@/features/suscripciones/components/history-note"
+import { limiteDeConductoresAlcanzado, periodosBloqueados, usePlan } from "@/features/suscripciones/plan-context"
+import { DialogoExportarReporte } from "../components/export-report-dialog"
 import { DialogoNuevaContrasenia } from "../components/new-password-dialog"
 import { DialogoRegistro } from "../components/register-dialog"
 import { TablaConductores } from "../components/drivers-table"
@@ -30,9 +34,12 @@ import type { ConductorFlota, Direccion, FiltrosConductores } from "../types"
 /** Conductores de la flota: resumen, búsqueda, filtros en la URL y alta de conductores. */
 export function ConductoresPagina() {
   const [parametros, setParametros] = useSearchParams()
+  const { plan, recargar: recargarPlan } = usePlan()
+  const limiteAlcanzado = limiteDeConductoresAlcanzado(plan)
 
   const periodoUrl = parametros.get("periodo")
-  const periodo = esPeriodo(periodoUrl) ? periodoUrl : PERIODO_INICIAL
+  const bloqueados = periodosBloqueados(plan)
+  const periodo = esPeriodo(periodoUrl) && !bloqueados.includes(periodoUrl) ? periodoUrl : PERIODO_INICIAL
   const ordenUrl = parametros.get("orden")
   const orden = esOrden(ordenUrl) ? ordenUrl : ORDEN_INICIAL
   const direccion: Direccion = parametros.get("dir") === "asc" ? "asc" : "desc"
@@ -69,6 +76,7 @@ export function ConductoresPagina() {
   )
 
   const [registrando, setRegistrando] = useState(false)
+  const [exportando, setExportando] = useState(false)
   const [conNuevaClave, setConNuevaClave] = useState<ConductorFlota | null>(null)
 
   const r = resumen.datos
@@ -90,11 +98,19 @@ export function ConductoresPagina() {
           <p className="text-etiqueta-grande text-texto-exito uppercase">Flota</p>
           <h1 className="mt-1 text-titulo-hero">Conductores</h1>
         </div>
-        <Button onClick={() => setRegistrando(true)}>
-          <UserPlus />
-          Registrar conductor
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="outline" onClick={() => setExportando(true)}>
+            <Download />
+            Exportar reporte
+          </Button>
+          <Button onClick={() => setRegistrando(true)} disabled={limiteAlcanzado}>
+            <UserPlus />
+            Registrar conductor
+          </Button>
+        </div>
       </header>
+      <AvisoLimiteConductores />
+      <NotaHistorial />
 
       {resumen.error && (
         <div className="mt-6">
@@ -225,8 +241,13 @@ export function ConductoresPagina() {
         </div>
       </section>
 
-      <DialogoRegistro abierto={registrando} alCerrar={() => setRegistrando(false)} alRegistrar={recargar} />
+      <DialogoRegistro abierto={registrando} alCerrar={() => setRegistrando(false)} alRegistrar={() => {
+          recargar()
+          recargarPlan()
+        }}
+      />
       <DialogoNuevaContrasenia conductor={conNuevaClave} alCerrar={() => setConNuevaClave(null)} />
+      <DialogoExportarReporte abierto={exportando} alCerrar={() => setExportando(false)} periodoInicial={periodo} />
     </>
   )
 }
