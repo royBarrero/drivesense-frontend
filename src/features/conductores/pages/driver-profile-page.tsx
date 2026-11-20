@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 import { listarViajesRecientes, obtenerPerfil } from "../api"
 import { NotaHistorial } from "@/features/suscripciones/components/history-note"
 import { periodosBloqueados, usePlan } from "@/features/suscripciones/plan-context"
+import { TarjetaEstilo } from "../components/driving-style-card"
 import { DialogoExportarReporte } from "../components/export-report-dialog"
 import { GraficoEvolucion } from "@/components/evolution-chart"
 import { TablaViajesRecientes } from "../components/recent-trips-table"
@@ -179,6 +180,11 @@ function ResumenPerfil({
           alCambiar={alCambiarPeriodo}
           bloqueadas={periodosBloqueados(plan)}
         />
+      </div>
+
+      {/* No depende del periodo: aparece aunque el periodo no tenga viajes */}
+      <div className="mt-5">
+        <TarjetaEstilo estilo={perfil.estilo} />
       </div>
 
       {sinDatos ? (

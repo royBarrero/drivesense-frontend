@@ -1,10 +1,21 @@
 import { useState, type ReactNode } from "react"
-import { BarChart3, CreditCard, FlaskConical, House, LogOut, Menu, Users, type LucideIcon } from "lucide-react"
-import { NavLink, Outlet, useNavigate } from "react-router"
+import {
+  BarChart3,
+  CreditCard,
+  FlaskConical,
+  House,
+  LogOut,
+  Menu,
+  Presentation,
+  Users,
+  type LucideIcon,
+} from "lucide-react"
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router"
 
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet"
+import { AsistenteAyuda } from "@/features/asistente/components/assistant-button"
 import { useSesion } from "@/features/auth/session-context"
 import { AvisoVencimiento } from "@/features/suscripciones/components/expiry-notice"
 import { useAccesoPruebas } from "@/features/pruebas/access-context"
@@ -41,12 +52,14 @@ export function PanelLayout() {
         </SheetContent>
       </Sheet>
 
-      <main className="min-w-0 flex-1 px-6 py-8 lg:px-8 lg:py-10 2xl:px-12">
+      {/* pb-28: el botón flotante de ayuda no tapa el final de la página */}
+      <main className="min-w-0 flex-1 px-6 pt-8 pb-28 lg:px-8 lg:pt-10 2xl:px-12">
         <div className="mx-auto max-w-contenido">
           <AvisoVencimiento />
           <Outlet />
         </div>
       </main>
+      <AsistenteAyuda />
     </div>
   )
 }
@@ -85,11 +98,14 @@ function MenuLateral({ alNavegar }: { alNavegar?: () => void }) {
       {/* Temporal: modo pruebas */}
       {acceso && (
         <GrupoMenu titulo="Herramientas">
-          <ItemMenu a="/panel/pruebas" icono={FlaskConical} alNavegar={alNavegar}>
+          <ItemMenu a="/panel/pruebas" icono={FlaskConical} excluir="/panel/pruebas/demo" alNavegar={alNavegar}>
             Pruebas
             <span className="ml-auto rounded-full bg-advertencia/15 px-2 py-0.5 text-ayuda font-semibold text-advertencia">
               Temporal
             </span>
+          </ItemMenu>
+          <ItemMenu a="/panel/pruebas/demo" icono={Presentation} alNavegar={alNavegar}>
+            Demostración
           </ItemMenu>
         </GrupoMenu>
       )}
@@ -134,33 +150,39 @@ function ItemMenu({
   a,
   icono: Icono,
   exacto = false,
+  excluir,
   alNavegar,
   children,
 }: {
   a: string
   icono: LucideIcon
   exacto?: boolean
+  /** Subruta con su propio ítem: estando en ella, este no se marca. */
+  excluir?: string
   alNavegar?: () => void
   children: ReactNode
 }) {
+  const { pathname } = useLocation()
+  const excluida = excluir !== undefined && pathname.startsWith(excluir)
   return (
     <NavLink
       to={a}
       end={exacto}
       onClick={alNavegar}
-      className={({ isActive }) =>
-        cn(
+      className={({ isActive: activa }) => {
+        const isActive = activa && !excluida
+        return cn(
           CLASE_ITEM,
           "group transition-colors",
           isActive
             ? "bg-encabezado-borde text-encabezado-texto"
             : "text-encabezado-texto-secundario hover:bg-encabezado-borde/40 hover:text-encabezado-texto",
         )
-      }
+      }}
     >
       {({ isActive }) => (
         <>
-          <Icono className={cn("size-5", isActive && "text-encabezado-acento")} aria-hidden="true" />
+          <Icono className={cn("size-5", isActive && !excluida && "text-encabezado-acento")} aria-hidden="true" />
           {children}
         </>
       )}

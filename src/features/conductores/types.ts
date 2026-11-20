@@ -17,6 +17,25 @@ export interface OpcionesReporte {
 export type Orden = "drivescore" | "viajes" | "ultimo_viaje"
 export type Direccion = "asc" | "desc"
 
+// --- Estilo de conducción (HU-25, K-means en el backend) ---
+
+/** De menor a mayor riesgo; `sin_datos` no tiene orden. */
+export type EstiloConduccion =
+  | "prudente"
+  | "intermedio"
+  | "brusco_curvas"
+  | "acelerador"
+  | "brusco_frenar"
+  | "veloz"
+  | "sin_datos"
+
+/** El conductor pasó a un estilo de mayor riesgo. */
+export interface AlertaEstilo {
+  anterior: EstiloConduccion
+  actual: EstiloConduccion
+  fecha: string
+}
+
 export interface ConductorFlota {
   id: number
   nombre: string
@@ -26,6 +45,9 @@ export interface ConductorFlota {
   calificacion: Calificacion | null
   viajes: number
   ultimo_viaje: string | null
+  /** De los últimos 30 días: no depende del periodo. */
+  estilo: EstiloConduccion
+  alerta_estilo: AlertaEstilo | null
 }
 
 export interface PaginaConductores {
@@ -81,6 +103,28 @@ export interface PuntoEvolucion {
   viajes: number
 }
 
+/** Estilo de conducción del perfil: últimos 30 días, no depende del periodo. */
+export interface EstiloPerfil {
+  estilo: EstiloConduccion
+  nombre: string
+  /** 0 = menor riesgo; nulo sin datos. */
+  orden_riesgo: number | null
+  /** Viajes con puntaje de los últimos 30 días y el mínimo para tener estilo. */
+  viajes: number
+  minimo_viajes: number
+  /** Por qué cayó en ese estilo, frente al promedio de la flota (o qué le falta, sin datos). */
+  explicacion: string[]
+  /** Tendencia: regresión sobre los últimos viajes; nulos si todavía hay pocos. */
+  viajes_tendencia: number
+  /** Puntos de DriveScore por viaje. */
+  pendiente: number | null
+  /** DriveScore estimado del próximo viaje. */
+  proyectado: number | null
+  riesgo: NivelRiesgo | null
+  tendencia_a_la_baja: boolean | null
+  alerta: AlertaEstilo | null
+}
+
 /** `GET /flotas/conductores/{id}` */
 export interface PerfilConductor {
   conductor: { id: number; nombre: string; email: string }
@@ -99,6 +143,7 @@ export interface PerfilConductor {
   eventos_por_10km: number | null
   agrupacion: Agrupacion
   evolucion: PuntoEvolucion[]
+  estilo: EstiloPerfil
 }
 
 /** Fila de `GET /flotas/conductores/{id}/recorridos` */

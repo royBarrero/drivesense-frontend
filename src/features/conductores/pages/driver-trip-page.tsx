@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarDays, CircleAlert, Lightbulb, Loader2, Sparkles } from "lucide-react"
+import { ArrowLeft, CalendarDays, CircleAlert, Loader2 } from "lucide-react"
 import { Link, useLocation, useParams } from "react-router"
 
 import { AvisoError } from "@/components/error-banner"
@@ -7,6 +7,7 @@ import { TarjetaKpi } from "@/components/kpi-card"
 import { DistintivoPuntaje } from "@/components/score-badge"
 import { Desglose } from "@/components/score-breakdown"
 import { MapaViaje } from "@/components/trip-map"
+import { RecomendacionesViaje } from "@/components/trip-recommendations"
 import { useConsulta } from "@/hooks/use-consulta"
 import { ESTILO_EVENTO, TIPOS_EVENTO } from "@/lib/events"
 import { formatearDia, formatearDuracion, formatearHora, formatearKm, formatearVelocidad } from "@/lib/format"
@@ -111,31 +112,7 @@ function Detalle({ viaje }: { viaje: DetalleViajeConductor }) {
               />
               <EventosPorTipo conteo={viaje.eventos_por_tipo} />
               {viaje.recomendacion && (
-                <section className="rounded-xl border border-border bg-card p-5 shadow-tarjeta">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="flex items-center gap-2 text-subtitulo-grande">
-                      <Lightbulb className="size-5 text-texto-evento-giro" aria-hidden="true" />
-                      Recomendaciones del viaje
-                    </h2>
-                    {[viaje.recomendacion, ...viaje.recomendaciones_secundarias].some((r) => r.generada_por_ia) && (
-                      <span
-                        className="inline-flex min-h-7 items-center gap-1.5 rounded-full bg-tinte-confort px-3 text-etiqueta-grande text-texto-evento-aceleracion uppercase"
-                        title="Redactadas por IA con los datos de este viaje"
-                      >
-                        <Sparkles className="size-4" aria-hidden="true" />
-                        Con IA
-                      </span>
-                    )}
-                  </div>
-                  <ul className="mt-4 flex flex-col gap-4">
-                    {[viaje.recomendacion, ...viaje.recomendaciones_secundarias].map((r) => (
-                      <li key={r.titulo}>
-                        <p className="text-subtitulo">{r.titulo}</p>
-                        <p className="mt-1 text-cuerpo text-muted-foreground">{r.texto}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
+                <RecomendacionesViaje recomendaciones={[viaje.recomendacion, ...viaje.recomendaciones_secundarias]} />
               )}
             </>
           ) : (

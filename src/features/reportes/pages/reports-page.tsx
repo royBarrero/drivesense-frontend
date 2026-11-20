@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 import { obtenerTablero } from "../api"
 import { DistribucionCalificacion } from "../components/rating-distribution"
 import { RankingBarras } from "../components/ranking-bars"
+import { DistribucionEstilos } from "../components/style-distribution"
 
 /** Tablero de indicadores de toda la flota; el periodo vive en la URL. */
 export function ReportesPagina() {
@@ -118,7 +119,7 @@ export function ReportesPagina() {
           {!t.completo && (
             <FuncionBloqueada titulo="Reportes completos">
               Tu plan incluye las tarjetas resumen de la flota. Mejora tu plan para ver los rankings de conductores, la
-              distribución por calificación, los eventos por tipo y la evolución del DriveScore.
+              distribución por calificación y por estilo de conducción, los eventos por tipo y la evolución del DriveScore.
             </FuncionBloqueada>
           )}
 
@@ -149,8 +150,9 @@ export function ReportesPagina() {
             </p>
           </section>
 
-          <section className="grid gap-5 lg:grid-cols-2" aria-label="Distribución de la flota">
+          <section className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3" aria-label="Distribución de la flota">
             <DistribucionCalificacion conteo={t.por_calificacion} />
+            <DistribucionEstilos conteo={t.por_estilo} />
             <EventosPorTipo
               conteo={t.eventos_por_tipo}
               titulo="Eventos por tipo"

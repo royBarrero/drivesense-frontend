@@ -4,6 +4,7 @@ import type {
   DetallePruebas,
   FiltrosRecorridos,
   PaginaRecorridos,
+  RecorridoSimulado,
   ResultadoValidacion,
   ResumenPruebas,
   TesterPruebas,
@@ -50,4 +51,19 @@ export function descargarCsv(filtros: FiltrosRecorridos) {
     `/pruebas/recorridos/exportar${consulta({ ...filtros })}`,
     `viajes-pruebas-${new Date().toISOString().slice(0, 10)}.csv`,
   )
+}
+
+/** Simulador de demo: guarda el viaje a nombre del conductor, como si lo enviara su teléfono. */
+export function crearRecorridoSimulado(conductorId: number, cuerpo: unknown) {
+  return peticion<RecorridoSimulado>(`/pruebas/conductores/${conductorId}/recorridos-simulados`, {
+    metodo: "POST",
+    cuerpo,
+  })
+}
+
+/** Borra todos los viajes simulados del conductor; devuelve cuántos. */
+export function borrarRecorridosSimulados(conductorId: number) {
+  return peticion<{ borrados: number }>(`/pruebas/conductores/${conductorId}/recorridos-simulados`, {
+    metodo: "DELETE",
+  })
 }
