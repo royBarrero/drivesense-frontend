@@ -67,6 +67,20 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "pruebas/demo",
+        // El simulador trae Leaflet (el mapa): se carga solo al abrirlo
+        lazy: async () => {
+          const { DemoPruebasPagina } = await import("@/features/pruebas/pages/demo-page")
+          return {
+            element: (
+              <RutaPruebas>
+                <DemoPruebasPagina />
+              </RutaPruebas>
+            ),
+          }
+        },
+      },
+      {
         path: "pruebas/viajes/:id",
         // El detalle trae Leaflet (el mapa): se carga solo al abrirlo
         lazy: async () => {

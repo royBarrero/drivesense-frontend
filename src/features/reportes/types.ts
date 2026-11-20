@@ -1,4 +1,4 @@
-import type { Agrupacion, PuntoEvolucion } from "@/features/conductores/types"
+import type { Agrupacion, EstiloConduccion, PuntoEvolucion } from "@/features/conductores/types"
 import type { Calificacion } from "@/lib/score"
 import type { TipoEvento } from "@/lib/trip-types"
 
@@ -44,4 +44,6 @@ export interface TableroFlota {
   por_calificacion: ConteoCalificaciones
   eventos_por_tipo: Record<TipoEvento, number>
   evolucion: { agrupacion: Agrupacion; puntos: PuntoEvolucion[] }
+  /** Conductores activos por estilo de conducción (últimos 30 días, no depende del periodo); en ceros sin el plan completo. */
+  por_estilo: Record<EstiloConduccion, number>
 }

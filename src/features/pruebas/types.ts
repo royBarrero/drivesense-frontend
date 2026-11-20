@@ -91,3 +91,29 @@ export interface FiltrosRecorridos {
   usuario_id?: number
   eventos?: FiltroEventos
 }
+
+/** Recomendación del viaje en la respuesta del backend. */
+export interface RecomendacionSimulada {
+  tipo: string
+  titulo: string
+  texto: string
+  generada_por_ia: boolean
+}
+
+/** Respuesta de `POST /pruebas/conductores/{id}/recorridos-simulados` (`RecorridoSalida`). */
+export interface RecorridoSimulado {
+  id: number
+  estado: EstadoRecorrido
+  distancia_m: number
+  duracion_s: number
+  velocidad_maxima_kmh: number
+  velocidad_promedio_kmh: number
+  drivescore: number | null
+  puntaje_frenadas: number | null
+  puntaje_aceleraciones: number | null
+  puntaje_giros: number | null
+  puntaje_velocidad: number | null
+  simulado: boolean
+  recomendacion: RecomendacionSimulada | null
+  recomendaciones_secundarias: RecomendacionSimulada[]
+}

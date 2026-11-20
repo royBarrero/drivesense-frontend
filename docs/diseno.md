@@ -379,6 +379,7 @@ Reemplaza la propuesta clara (`bg-sidebar`): el menú es **oscuro**, como los bl
 - **Pestañas Viajes / Testers:** cápsula `bg-carril rounded-full p-1`; la activa `bg-card shadow-tarjeta`.
 - **Mapa del viaje:** Leaflet con mosaicos de OpenStreetMap y atribución visible. Ruta de 5 px en `primario`; inicio, círculo blanco con borde de 4 en `primario`; fin, círculo `encabezado-fondo`; eventos, círculos de 14 en el texto de su tipo con borde blanco de 2.
 - **Botones Correcto / Falso:** `outline` de 36 px; marcado, Correcto en `default` y Falso en `bg-destructive text-white`.
+- **Simulador de demo** (`/panel/pruebas/demo`): franja "Modo demostración" con el mismo estilo del banner de Inicio (ícono `Presentation`). Mapa como el del viaje (h-96): ruta pendiente en `texto-terciario` al 60 %, tramo recorrido de 6 px en `primario` y el auto como cochecito visto desde arriba (SVG de 24 × 44: carrocería `encabezado-acento` con borde `encabezado-fondo`, ruedas `encabezado-superficie`, vidrios `encabezado-fondo`, faros `card`), girado según el rumbo. Sobre el tablero, la tarjeta del Copiloto: bloque `encabezado-fondo` con el ícono de la maniobra en una caja `encabezado-superficie` y `encabezado-acento`, la maniobra en `text-subtitulo-grande` `encabezado-texto`, distancia y calle en `encabezado-texto-secundario`, y el botón "Voz activada / desactivada" en cápsula con borde `encabezado-borde` (ícono `Volume2` / `VolumeX`). Tablero: velocidad en `text-telemetria-xl` (en `texto-evento-velocidad` sobre 60 km/h), cifras en cajas `bg-muted`, botones Acelerar / Frenar en cápsula con su tecla en `<kbd>`, botones de evento con el tinte y el texto de su tipo (`ESTILO_EVENTO`; deshabilitados al 50 % con el motivo debajo; el de la maniobra en curso con borde) y la lista de eventos en filas `bg-muted`. Sin tokens nuevos.
 
 ---
 
@@ -393,8 +394,33 @@ Datos de `GET /flotas/tablero` con periodo fijo de 7 días.
 - **Bloque de bienvenida** (`app/home/home-hero.tsx`): `bg-encabezado-fondo rounded-3xl shadow-tarjeta-elevada`, dos columnas desde 1024. A la izquierda, cápsulas de la empresa (borde `encabezado-borde`) y del plan (`bg-encabezado-acento/12 text-encabezado-acento`, enlaza a Plan), saludo `text-etiqueta-grande uppercase text-encabezado-acento`, nombre `text-titulo-landing-movil text-encabezado-texto`, resumen de la semana `text-subtitulo-landing text-encabezado-texto-secundario` y botones `sobreOscuro` / `contornoOscuro` (sin conductores, solo "Registrar conductores"). A la derecha, el anillo sobre dos círculos de la diana (8.3; el interior relleno con `fill-encabezado-fondo`) y la calificación en su distintivo (6.5). Ruta punteada `encabezado-acento` al 35 % cruzando el bloque.
 - **Anillo de DriveScore** (`components/score-ring.tsx`, `AnilloDriveScore`): 176 px, trazo de 12 con el degradado, carril `stroke-carril` (o `stroke-encabezado-borde` sobre oscuro), número `text-telemetria font-numeros`. Se llena con una transición de 1 s (sin animación con `prefers-reduced-motion`).
 - Debajo: cuatro `TarjetaKpi` (viajes, kilómetros, eventos por 10 km, conductores en riesgo); "Conductores destacados" y "a vigilar" (top 3, `app/home/home-rankings.tsx`; ocultos si nadie supera la distancia mínima; con plan Gratis, `FuncionBloqueada` compacta); y **Accesos rápidos** (`app/home/quick-links.tsx`: tarjetas con caja de ícono tintada que suben 2 px al pasar el ratón).
-- **Cápsula "Con IA"** (detalle del viaje, junto al título "Recomendaciones del viaje", si alguna la redactó la IA): `rounded-full bg-tinte-confort text-texto-evento-aceleracion text-etiqueta-grande uppercase`, ícono `Sparkles` de 16. Sin tokens nuevos; es la misma de la app.
+- **Cápsula "Con IA"** (`components/ai-badge.tsx`, `CapsulaIA`; en el detalle del viaje, junto al título "Recomendaciones del viaje", si alguna la redactó la IA, y junto a los títulos del estilo de conducción, 8.10): `rounded-full bg-tinte-confort text-texto-evento-aceleracion text-etiqueta-grande uppercase`, ícono `Sparkles` de 16. Sin tokens nuevos; es la misma de la app.
 - Empresa sin conductores: **Primeros pasos** (`app/home/welcome-steps.tsx`) con tres pasos numerados (círculo de 48 `bg-tinte-primario` y número `bg-primary`).
+
+### 8.10 Estilo de conducción (HU-25, implementado)
+- **Color según el riesgo** (`features/conductores/driving-style.ts`, `ESTILO_CONDUCCION`), con los tintes de 6.5 / 8.8:
+
+| Estilo | Cápsula | Barra (Reportes) | Ícono |
+|---|---|---|---|
+| Prudente | `bg-tinte-primario text-texto-exito` | `bg-primario` | `ShieldCheck` |
+| Intermedio | `bg-tinte-advertencia text-texto-evento-giro` | `bg-advertencia` | `Activity` |
+| Brusco en curvas | ídem amarillo | `bg-advertencia` | `CornerUpRight` (el del giro) |
+| Acelerador | ídem amarillo | `bg-advertencia` | `ChevronsRight` (el de la aceleración) |
+| Brusco al frenar | `bg-tinte-peligro text-destructive` | `bg-peligro` | `ArrowDownToLine` (el de la frenada) |
+| Veloz | ídem rojo | `bg-peligro` | `Gauge` (el del exceso) |
+| Sin datos suficientes | `bg-muted text-muted-foreground` | `bg-borde-fuerte` | `CircleHelp` |
+
+- **Cápsula** (`DistintivoEstilo`): `rounded-full font-semibold`, ícono de 16; normal `px-3 py-1 text-cuerpo`, `pequeno` (tabla) `px-2.5 py-0.5 text-cuerpo-pequeno` y dice "Sin datos".
+- **Perfil** (`TarjetaEstilo`, pestaña Resumen, bajo los botones de periodo, siempre visible): tarjeta (6.3) con título y `CapsulaIA`, la nota "últimos 30 días, sin importar el periodo", la cápsula grande (`px-4 py-2 text-subtitulo`), la alerta (`bg-tinte-peligro border-borde-peligro-suave text-destructive`, `TriangleAlert`), "Por qué" (`text-etiqueta uppercase`) con viñetas `bg-borde-fuerte` y, a la derecha desde 1024, el bloque **Tendencia de riesgo** (`bg-muted rounded-lg p-4`): "Viene empeorando" (`TrendingDown`, `text-destructive`), "Viene mejorando" (`TrendingUp`, `text-texto-exito`) o "Estable" (`ArrowRight`, `text-muted-foreground`), la pendiente y el DriveScore estimado con `DistintivoRiesgo`. Sin datos: recuadro punteado (`border-dashed border-borde-fuerte bg-muted`) con el texto del backend.
+- **Listado**: columna "Estilo" con la cápsula pequeña; con alerta, `TriangleAlert` de 16 en `text-destructive` y debajo "Pasó de Intermedio · Hoy" (`text-cuerpo-pequeno font-medium text-destructive`; el texto completo va en `title` y para lectores de pantalla).
+- **Reportes** (`DistribucionEstilos`): barras como "Conductores por calificación" (`h-3`, carril `bg-carril`), de menor a mayor riesgo, con el ícono de cada estilo en `text-muted-foreground`. Las tres tarjetas de distribución van en una fila desde 1280 px. Sin tokens nuevos.
+
+### 8.11 Asistente de ayuda (implementado)
+- **Botón flotante:** `fixed right-6 bottom-6`, alto 56 (`h-14`), píldora `bg-encabezado-fondo` (hover `encabezado-superficie`) con `MessageCircleQuestion` de 24 en `encabezado-acento` y "Ayuda" en `text-cuerpo font-semibold text-encabezado-texto`, `shadow-tarjeta`.
+- **Panel lateral:** `Sheet` a la derecha, ancho completo en móvil y `max-w-md` desde `sm`, fondo `background`. Cabecera `bg-card` con borde inferior: caja de 40 `bg-tinte-primario` con el ícono en `texto-exito`, "Asistente de ayuda" en `text-subtitulo-grande` y la ayuda en `text-cuerpo-pequeno text-muted-foreground`.
+- **Burbujas** (`max-w-5/6`, `rounded-xl`, `px-4 py-3`, separación 8, `text-cuerpo` con saltos de línea): del asistente a la izquierda, `bg-card` con borde y la esquina superior izquierda `rounded-tl-sm`, con la cápsula "Con IA" debajo si la redactó la IA; del usuario a la derecha, `bg-encabezado-fondo text-encabezado-texto` con `rounded-tr-sm`. "Escribiendo…" en una burbuja del asistente en `text-cuerpo-pequeno text-muted-foreground`.
+- **Sugerencias:** chips `rounded-full border-borde-fuerte bg-card px-3 py-2 text-cuerpo-pequeno font-semibold` (hover `bg-muted`), solo sin conversación.
+- **Pregunta:** barra `bg-card` con borde superior; `textarea` como los campos (`bg-muted`, borde `input`, `rounded-lg`) que crece hasta `max-h-32`, y botón `icon` primario con `SendHorizontal` (cargando: `Loader2`). "Nueva conversación" como botón `link` debajo. Sin tokens nuevos.
 
 ## 9. Implementación en `src/index.css`
 

@@ -1,4 +1,4 @@
-import { KeyRound } from "lucide-react"
+import { KeyRound, TriangleAlert } from "lucide-react"
 import { useLocation, useNavigate } from "react-router"
 
 import { DistintivoPuntaje } from "@/components/score-badge"
@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button"
 import { AvatarUsuario } from "@/components/user-avatar"
 import { formatearDia, formatearEntero, formatearHora } from "@/lib/format"
 
+import { ESTILO_CONDUCCION, textoAlerta } from "../driving-style"
 import type { ConductorFlota } from "../types"
+import { DistintivoEstilo } from "./driving-style-badge"
 
 const CLASE_CABECERA = "px-3 py-3 text-left text-etiqueta font-medium text-muted-foreground uppercase"
 
@@ -28,6 +30,9 @@ export function TablaConductores({
           <tr>
             <th scope="col" className={CLASE_CABECERA}>Conductor</th>
             <th scope="col" className={`${CLASE_CABECERA} text-center`}>DriveScore</th>
+            <th scope="col" className={CLASE_CABECERA} title="Últimos 30 días, sin importar el periodo">
+              Estilo
+            </th>
             <th scope="col" className={`${CLASE_CABECERA} text-right`}>Viajes</th>
             <th scope="col" className={CLASE_CABECERA}>Último viaje</th>
             <th scope="col" className={`${CLASE_CABECERA} text-right`}>
@@ -62,6 +67,9 @@ export function TablaConductores({
                   <DistintivoPuntaje drivescore={c.drivescore} calificacion={c.calificacion} />
                 )}
               </td>
+              <td className="px-3 py-3">
+                <CeldaEstilo conductor={c} />
+              </td>
               <td className="px-3 py-3 text-right font-numeros tabular-nums">{formatearEntero(c.viajes)}</td>
               <td className="px-3 py-3 text-muted-foreground">
                 {c.ultimo_viaje ? `${formatearDia(c.ultimo_viaje)} ${formatearHora(c.ultimo_viaje)}` : "—"}
@@ -85,5 +93,27 @@ export function TablaConductores({
         </tbody>
       </table>
     </div>
+  )
+}
+
+/** Estilo de conducción y, si pasó a uno de mayor riesgo, la marca con el detalle. */
+function CeldaEstilo({ conductor }: { conductor: ConductorFlota }) {
+  const alerta = conductor.alerta_estilo
+  if (!alerta) return <DistintivoEstilo estilo={conductor.estilo} pequeno />
+
+  const detalle = `${textoAlerta(alerta.anterior, alerta.actual)} (${formatearDia(alerta.fecha)})`
+  return (
+    <span className="flex flex-col items-start gap-1" title={detalle}>
+      <span className="flex items-center gap-1.5">
+        <DistintivoEstilo estilo={conductor.estilo} pequeno />
+        <TriangleAlert className="size-4 text-destructive" aria-hidden="true" />
+      </span>
+      <span className="text-cuerpo-pequeno font-medium text-destructive">
+        <span className="sr-only">{detalle}</span>
+        <span aria-hidden="true">
+          Pasó de {ESTILO_CONDUCCION[alerta.anterior].nombre} · {formatearDia(alerta.fecha)}
+        </span>
+      </span>
+    </span>
   )
 }
